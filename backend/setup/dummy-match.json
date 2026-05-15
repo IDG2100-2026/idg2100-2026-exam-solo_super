@@ -1,0 +1,50 @@
+[
+  {
+    "players": [
+      {
+        "user": "64f000000000000000000001",
+        "usernameSnapshot": "player1"
+      },
+      {
+        "user": "64f000000000000000000002",
+        "usernameSnapshot": "player2"
+      }
+    ],
+    "anonymousPlayers": 0,
+    "isAnonymousMatch": false,
+    "bestOf": 3,
+    "straightsAllowed": true,
+    "roundTimeSeconds": 10,
+    "categoryKey": "bestOf3_straightsOn_10s",
+    "status": "finished",
+    "winnerType": "registered",
+    "winnerUser": "64f000000000000000000001",
+    "rounds": [
+      {
+        "roundNumber": 1,
+        "playerOneRolls": ["A", "K", "K", "8", "8"],
+        "playerTwoRolls": ["7", "J", "K", "7", "J"],
+        "roundWinner": "player1"
+      }
+    ],
+    "finalOutcome": "player1 wins 2-1",
+    "matchComments": "Close game!",
+    "startedAt": "2026-03-01T12:00:00.000Z",
+    "finishedAt": "2026-03-01T12:10:00.000Z"
+  },
+  {
+    "players": [],
+    "anonymousPlayers": 2,
+    "isAnonymousMatch": true,
+    "bestOf": 5,
+    "straightsAllowed": false,
+    "roundTimeSeconds": 5,
+    "categoryKey": "bestOf5_straightsOff_5s",
+    "status": "finished",
+    "winnerType": "anonymous",
+    "rounds": [],
+    "finalOutcome": "Anonymous player wins",
+    "startedAt": "2026-03-02T10:00:00.000Z",
+    "finishedAt": "2026-03-02T10:05:00.000Z"
+  }
+]

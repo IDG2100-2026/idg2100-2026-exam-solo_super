@@ -1,0 +1,38 @@
+[
+  {
+    "username": "player1",
+    "email": "player1@test.com",
+    "password": "123456",
+    "age": 25,
+    "role": "user",
+    "eloRating": 1200,
+    "wins": 5,
+    "matchesPlayed": 10,
+    "isBanned": false,
+    "trophies": []
+  },
+  {
+    "username": "player2",
+    "email": "player2@test.com",
+    "password": "123456",
+    "age": 30,
+    "role": "user",
+    "eloRating": 1350,
+    "wins": 8,
+    "matchesPlayed": 12,
+    "isBanned": false,
+    "trophies": []
+  },
+  {
+    "username": "admin",
+    "email": "admin@test.com",
+    "password": "admin123",
+    "age": 35,
+    "role": "admin",
+    "eloRating": 1500,
+    "wins": 20,
+    "matchesPlayed": 25,
+    "isBanned": false,
+    "trophies": []
+  }
+]

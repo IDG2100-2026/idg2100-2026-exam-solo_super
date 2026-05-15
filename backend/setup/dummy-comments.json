@@ -1,0 +1,20 @@
+[
+  {
+    "author": "64f000000000000000000001",
+    "targetType": "match",
+    "targetId": "64f100000000000000000001",
+    "content": "Great match! Really enjoyed watching."
+  },
+  {
+    "author": "64f000000000000000000002",
+    "targetType": "match",
+    "targetId": "64f100000000000000000001",
+    "content": "That last round was intense!"
+  },
+  {
+    "author": "64f000000000000000000001",
+    "targetType": "tournament",
+    "targetId": "64f200000000000000000001",
+    "content": "What even was that tournament!"
+  }
+]

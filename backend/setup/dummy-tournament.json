@@ -1,0 +1,49 @@
+[
+  {
+    "title": "Spring Championship",
+    "description": "Knockout tournament for all players",
+    "startDate": "2026-04-01T12:00:00.000Z",
+    "categoryKey": "bestOf5_straightsOn_10s",
+    "bestOf": 5,
+    "straightsAllowed": true,
+    "roundTimeSeconds": 10,
+    "minPlayers": 4,
+    "maxPlayers": 16,
+    "createdBy": "64f000000000000000000003",
+    "participants": [
+      {
+        "user": "64f000000000000000000001"
+      },
+      {
+        "user": "64f000000000000000000002"
+      }
+    ],
+    "rounds": [],
+    "status": "open",
+    "trophy": {
+      "title": "Spring Trophy",
+      "imageUrl": ""
+    },
+    "winner": null
+  },
+  {
+    "title": "Quick Blitz Tournament",
+    "description": "Fast-paced tournament with short rounds",
+    "startDate": "2026-04-05T18:00:00.000Z",
+    "categoryKey": "bestOf3_straightsOff_5s",
+    "bestOf": 3,
+    "straightsAllowed": false,
+    "roundTimeSeconds": 5,
+    "minPlayers": 2,
+    "maxPlayers": 8,
+    "createdBy": "64f000000000000000000003",
+    "participants": [],
+    "rounds": [],
+    "status": "open",
+    "trophy": {
+      "title": "Blitz Trophy",
+      "imageUrl": ""
+    },
+    "winner": null
+  }
+]

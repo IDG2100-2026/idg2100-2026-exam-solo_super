@@ -1,0 +1,135 @@
+/*Reused from  my previous assignment!!*/
+.app-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.main-content {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* HEADER */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #ccc;
+}
+
+.site-header.light {
+  background-color: #f0f0f0;
+  color: #111;
+}
+
+.site-header.dark {
+  background-color: #222;
+  color: #fff;
+}
+
+.site-logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+}
+.nav-button {
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+.theme-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.theme-button {
+  border: 1px solid #aaa;
+  background: white;
+  color: #111;
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
+
+.site-header.dark .theme-button {
+  background: #444;
+  color: white;
+  border-color: #666;
+}
+
+/* FOOTER */
+.site-footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid #ccc;
+  text-align: center;
+}
+
+.site-footer.light {
+  background-color: #f0f0f0;
+  color: #111;
+}
+
+.site-footer.dark {
+  background-color: #121212;
+  color: #fff;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}
+
+.footer-info p {
+  margin: 0.2rem 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .theme-controls {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}
+.logo-image{
+  width: 10%;
+}

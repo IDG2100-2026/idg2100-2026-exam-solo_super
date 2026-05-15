@@ -1,0 +1,42 @@
+import { Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+
+import HomePage from "./pages/HomePage";
+import LobbyPage from "./pages/LobbyPage";
+import CreateGamePage from "./pages/CreateGamePage";
+import GamePage from "./pages/GamePage";
+import TournamentHomePage from "./pages/TournamentHomePage";
+import TournamentPage from "./pages/TournamentPage";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ProfilePage from "./pages/ProfilePage";
+import AboutUs from "./pages/AboutUs";
+import AboutSpanishDice from "./pages/AboutSpanishDice";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Unauthorized from "./pages/Unauthorized";
+import TermsAndConditions from "./pages/TermsAndConditions";
+
+function App() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/lobby" element={<LobbyPage />} />
+        <Route path="/create-game" element={<CreateGamePage />} />
+        <Route path="/games/:id" element={<GamePage />} />
+        <Route path="/tournaments" element={<TournamentHomePage />} />
+        <Route path="/tournaments/:id" element={<TournamentPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Signup />} />
+        <Route path="/profile/:id" element={<ProfilePage />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/about-game" element={<AboutSpanishDice />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="*" element={<Unauthorized />} />
+      </Routes>
+    </Layout>
+  );
+}
+
+export default App;

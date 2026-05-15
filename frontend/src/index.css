@@ -1,0 +1,594 @@
+:root {
+  /* LIGHT THEME (default) */
+  --bg: #ffffff;
+  --text: #111111;
+  --card-bg: #f5f5f5;
+  --border: #cccccc;
+  --button-bg: #ffffff;
+  --button-text: #111111;
+}
+
+body.dark-theme {
+  /* DARK THEME */
+  --bg: #181818;
+  --text: #f5f5f5;
+  --card-bg: #242424;
+  --border: #444;
+  --button-bg: #333;
+  --button-text: #f5f5f5;
+}
+.preview-card-button,
+button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.preview-card-button:hover,
+button:hover {
+  opacity: 0.85;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+   margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body.light-theme {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+body.dark-theme {
+  background-color: #181818;
+  color: #f5f5f5;
+}
+.hero-card,
+.preview-card,
+.lobby-card,
+.create-game-card,
+.auth-card, .tournament-card, .profile-card {
+  background-color: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+ box-shadow: 0 4px 14px var(--accent);
+}
+.upload-button{
+     background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.upload-button:hover{
+ background-color: var(--border);
+}
+.profile-section{
+  margin-left: 5%;
+}
+
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+.auth-page {
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.auth-card h1 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card p {
+  margin-bottom: 1.5rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.auth-form input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.auth-form button {
+  margin-top: 0.5rem;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.auth-switch {
+  margin-top: 1.5rem;
+}
+
+.form-error {
+  color: #b91c1c;
+  font-weight: 500;
+  margin: 0;
+}
+
+.secondary-link-button {
+  background: transparent;
+  border: none;
+  color: #1d4ed8;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.6rem !important;
+  font-weight: 400 !important;
+}
+.profile-image {
+  width: 70%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+}
+.profile-image-section>*{
+  margin-bottom:5%;
+}
+.lobby-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.lobby-header {
+  margin-bottom: 2rem;
+}
+
+.lobby-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.lobby-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.lobby-card {
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.lobby-card-info h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.lobby-card-info p {
+  margin: 0.35rem 0;
+}
+
+.lobby-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 150px;
+}
+
+.lobby-card-actions button {
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: white;
+  cursor: pointer;
+}
+
+.secondary-button {
+  background: #4b5563;
+}
+
+.create-game-page {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.create-game-card {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 12px;
+  padding: 2rem;
+}
+
+.create-game-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.create-game-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.create-game-form select,
+.create-game-form input[type="text"],
+.create-game-form input[type="number"] {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.create-game-form button {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+}
+
+.checkbox-row {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.6rem !important;
+  font-weight: 400 !important;
+}
+.tournament-list-page,
+.tournament-page,
+.create-tournament-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.tournament-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.tournament-card,
+.tournament-detail-card,
+.create-tournament-card {
+  background-color: var(--bg);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tournament-link-button,
+.create-tournament-form button,
+.comment-form button,
+.tournament-detail-card button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.create-tournament-form,
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-tournament-form input,
+.create-tournament-form textarea,
+.create-tournament-form select,
+.comment-form textarea {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.participant-list,
+.comment-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.comment-card {
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.tournament-trophy-image {
+  max-width: 120px;
+  display: block;
+  margin-top: 0.75rem;
+}
+.home-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.hero-card,
+.preview-empty-card {
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+.hero-card {
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.primary-action-button,
+.secondary-action-button,
+.section-link {
+  text-decoration: none;
+}
+
+.primary-action-button,
+.secondary-action-button {
+  display: inline-block;
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+}
+
+.primary-action-button {
+  background: #1d4ed8;
+  color: white;
+}
+
+.secondary-action-button {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.home-section {
+  margin-top: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.preview-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.preview-grid>*{
+  margin-bottom: 5%;
+}
+
+.preview-card {
+  border-radius: 14px;
+  padding: 1.25rem;
+  text-align: left;
+}
+
+.preview-card-button {
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+}
+
+.preview-card h3 {
+  margin-top: 0;
+}
+
+.preview-card p {
+  margin: 0.45rem 0;
+}
+.customization-wrapper {
+  position: relative;
+}
+
+.customization-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  background-color: var(--card-bg);
+  color: var(--text);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+}
+
+.customization-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.customization-group:last-child {
+  margin-bottom: 0;
+}
+
+.customization-group p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.accent-options {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.accent-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  padding: 0;
+}
+.profile-top{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.recent-games-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.recent-game-card {
+  display: block;
+  margin-bottom: 10%;
+  text-decoration: none;
+  color: inherit;
+  background-color: var(--card-bg);
+  border: 1px solid black;
+  border-radius: 12px;
+  padding: 1rem;
+  width: 70%;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.18),
+    0 0 12px black;
+  transition: transform 0.2s ease;
+}
+
+.recent-game-card:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+.about-image{
+  margin-left: 20%;
+}
+
+.recent-game-card h3 {
+  margin-top: 0;
+}
+.tournament-detail-card{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 700px) {
+  .lobby-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .about-image{
+    width: 100%;
+    margin: 0;
+  }
+  .site-nav{
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .customization-menu{ 
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 220px;
+    background-color: var(--card-bg);
+    color: var(--text);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+    z-index: 20;}
+
+  .lobby-card-actions {
+    width: 100%;
+  }
+  .profile-top{
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.profile-image {
+  width: 90%;
+  margin-left: 5%;
+  height: 100%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+}
+.recent-games-list {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.profile-main-info{
+  margin-left: 10%;
+}
+}
