@@ -1,18 +1,11 @@
+const jwt = require("jsonwebtoken");
 const User = require("../models/userSchema");
 
-/*
-  Authentication:
-  optional headers:
-  - x-user-id
-  - x-user-role
-*/
 const authMiddleware = async (req, res, next) => {
   try {
-    const userId = req.header("x-user-id");
-    const roleHeader = req.header("x-user-role");
+    const token = req.cookies?.accessToken;
 
-    // No headers -> anonymous
-    if (!userId && !roleHeader) {
+    if (!token) {
       req.user = {
         userId: null,
         role: "anonymous"
@@ -20,45 +13,31 @@ const authMiddleware = async (req, res, next) => {
       return next();
     }
 
-    // If a userId is provided, try to fetch the user
-    if (userId) {
-      const user = await User.findById(userId).select("-password");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // If user does not exist, do NOT block the request
-      // Just treat the request as anonymous
-      if (!user) {
-        req.user = {
-          userId: null,
-          role: roleHeader || "anonymous"
-        };
-        return next();
-      }
+    const user = await User.findById(decoded.userId).select("-password");
 
-      if (user.isBanned) {
-        return res.status(403).json({
-          success: false,
-          message: "User is banned."
-        });
-      }
-
+    if (!user || user.isBanned) {
       req.user = {
-        userId: user._id.toString(),
-        role: user.role,
-        username: user.username
+        userId: null,
+        role: "anonymous"
       };
-
       return next();
     }
 
-    // Fallback: role only
     req.user = {
-      userId: null,
-      role: roleHeader || "anonymous"
+      userId: user._id.toString(),
+      role: user.role,
+      username: user.username
     };
 
     next();
   } catch (error) {
-    next(error);
+    req.user = {
+      userId: null,
+      role: "anonymous"
+    };
+    next();
   }
 };
 

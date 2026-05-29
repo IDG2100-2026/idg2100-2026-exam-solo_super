@@ -126,6 +126,7 @@ function HomePage() {
         `http://localhost:5008/api/games/matches/${matchId}/join`,
         {
           method: "PATCH",
+          credentials: "include",
           headers,
         }
       );

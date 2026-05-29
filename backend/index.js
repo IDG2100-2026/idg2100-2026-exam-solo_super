@@ -1,3 +1,4 @@
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
@@ -22,7 +23,11 @@ const app = express();
 //connect to database
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 //middleware
@@ -44,6 +49,8 @@ app.get("/", (req, res) => {
 });
 
 //main routes
+app.use(cookieParser());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/games", gameRoutes);

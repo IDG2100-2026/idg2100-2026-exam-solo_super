@@ -11,6 +11,7 @@ function Signup() {
     password: "",
     repeatPassword: "",
     agreeToTerms: false,
+    isAdmin: false,
   });
 
   const [error, setError] = useState("");
@@ -84,6 +85,7 @@ function Signup() {
 
       const response = await fetch("http://localhost:5008/api/auth/register", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -92,20 +94,21 @@ function Signup() {
           email: formData.email,
           password: formData.password,
           age: age,
+          role: formData.isAdmin ? "admin" : "user",
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Registration failed.");
+        setError(data.message || "Could not create profile");
         setLoading(false);
         return;
       }
 
       navigate("/login");
     } catch (error) {
-      setError("Something went wrong while registering.");
+      setError("There was an error");
     } finally {
       setLoading(false);
     }
@@ -170,6 +173,15 @@ function Signup() {
               onChange={handleChange}
               placeholder="Repeat your password"
             />
+          </label>
+          <label className="checkbox-label">
+          <input
+            type="checkbox"
+            name="isAdmin"
+            checked={formData.isAdmin}
+            onChange={handleChange}
+          />
+          Register as admin
           </label>
 
           <label className="checkbox-label">

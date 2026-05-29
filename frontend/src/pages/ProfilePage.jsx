@@ -30,6 +30,27 @@ function ProfilePage() {
   const userId = localStorage.getItem("userId");
   const role = localStorage.getItem("role");
 
+  const getProfileImageUrl = (imagePath) => {
+  if (
+    !imagePath ||
+    imagePath === "/default-profile.png" ||
+    imagePath === "default-profile.png" ||
+    imagePath === "/default_profile.png"
+  ) {
+    return "/default_profile.png";
+  }
+
+  if (imagePath.startsWith("http")) {
+    return imagePath;
+  }
+
+  if (imagePath.startsWith("/uploads")) {
+    return `http://localhost:5008${imagePath}?t=${Date.now()}`;
+  }
+
+  return "/default_profile.png";
+};
+
   // Runs when the page loads, or when userId/role changes
   useEffect(() => {
     // Fetches profile data from backend
@@ -46,6 +67,7 @@ function ProfilePage() {
         }
 
         const response = await fetch(`http://localhost:5008/api/users/${userId}`, {
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
             "x-user-id": userId,
@@ -72,11 +94,8 @@ function ProfilePage() {
         });
 
         // Adds timestamp to prevent browser from showing old cached image
-        setProfileImage(
-          data.data.profileImage
-            ? `http://localhost:5008${data.data.profileImage}?t=${Date.now()}`
-            : "/default_profile.png"
-        );
+        setProfileImage(getProfileImageUrl(data.data.profileImage));
+
       } catch (err) {
         console.error("Profile fetch error:", err);
         setError("Could not connect to the server.");
@@ -159,6 +178,7 @@ function ProfilePage() {
         `http://localhost:5008/api/users/${userId}/profile-image`,
         {
           method: "PATCH",
+          credentials: "include",
           headers: {
             "x-user-id": userId,
             "x-user-role": role || "user",
@@ -216,6 +236,7 @@ function ProfilePage() {
 
       const response = await fetch(`http://localhost:5008/api/users/${userId}`, {
         method: "PATCH",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           "x-user-id": userId,
@@ -244,9 +265,7 @@ function ProfilePage() {
 
       // Keep image updated if backend returns it
       if (data.data.profileImage) {
-        setProfileImage(
-          `http://localhost:5008${data.data.profileImage}?t=${Date.now()}`
-        );
+        setProfileImage(getProfileImageUrl(data.data.profileImage));
       }
 
       setSuccessMessage("Profile updated successfully.");

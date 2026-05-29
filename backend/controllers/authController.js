@@ -1,8 +1,9 @@
 const User = require("../models/userSchema");
+const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, age } = req.body;
+    const { username, email, password, age, role } = req.body;
 
     // validation
     if (!username || !email || !password || age === undefined) {
@@ -11,6 +12,40 @@ const registerUser = async (req, res) => {
         message: "Username, email, password, and age are required."
       });
     }
+    if (username.length < 3) {
+  return res.status(400).json({
+    success: false,
+    message: "Username must be at least 3 characters long."
+  });
+}
+
+if (username.length > 20) {
+  return res.status(400).json({
+    success: false,
+    message: "Username cannot be longer than 20 characters."
+  });
+}
+
+if (password.length < 8) {
+  return res.status(400).json({
+    success: false,
+    message: "Password must be at least 8 characters long."
+  });
+}
+
+if (!email.includes("@")) {
+  return res.status(400).json({
+    success: false,
+    message: "Please enter a valid email address."
+  });
+}
+
+if (age < 18) {
+  return res.status(400).json({
+    success: false,
+    message: "You must be at least 18 years old to register."
+  });
+}
 
     if (age < 18) {
       return res.status(400).json({
@@ -43,7 +78,7 @@ const registerUser = async (req, res) => {
       email,
       password,
       age,
-      role: "user",
+      role: role === "admin" ? "admin" : "user",
       eloRating: 1200,
       isBanned: false,
       trophies: []
@@ -84,7 +119,6 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // include password
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
@@ -101,7 +135,6 @@ const loginUser = async (req, res) => {
       });
     }
 
-    //basic check
     const isPasswordCorrect = user.password === password;
 
     if (!isPasswordCorrect) {
@@ -110,6 +143,24 @@ const loginUser = async (req, res) => {
         message: "Invalid email or password."
       });
     }
+
+    const token = jwt.sign(
+      {
+        userId: user._id.toString(),
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || "1h"
+      }
+    );
+
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 1000
+    });
 
     return res.status(200).json({
       success: true,
@@ -120,11 +171,6 @@ const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         eloRating: user.eloRating
-      },
-      auth: {
-        //NOT ACTUAL TOKEN just a variable for later
-        mockToken: `mock-token-${user._id}`,
-        role: user.role
       }
     });
   } catch (error) {

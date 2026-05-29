@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middleware/uploadMiddleware");
+const verifyToken = require("../middleware/verifyToken");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
@@ -22,11 +23,11 @@ router.get("/", authMiddleware, getAllUsers);
 router.get("/:id", authMiddleware, getUserById);
 
 // update
-router.patch("/:id", authMiddleware, updateUser);
+router.patch("/:id", authMiddleware, updateUser, verifyToken);
 
 // ban or unban a user
 router.patch("/:id/ban", authMiddleware, adminMiddleware, banUser);
 
-router.patch("/:id/profile-image", authMiddleware, upload.single("profileImage"), uploadProfileImage);
+router.patch("/:id/profile-image", verifyToken, authMiddleware, upload.single("profileImage"), uploadProfileImage);
 
 module.exports = router;

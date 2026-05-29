@@ -52,6 +52,7 @@ function CreateGamePage() {
 
       const response = await fetch("http://localhost:5008/api/games/matches", {
         method: "POST",
+        credentials: "include",
         headers,
         body: JSON.stringify(formData),
       });

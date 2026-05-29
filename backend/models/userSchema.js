@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema(
     matchesPlayed: {type: Number, default: 0},
     isBanned: {type: Boolean, default: false},
     trophies: {type: [trophySchema], default: []}, 
-    profileImage: {type: String, default: "/default-profile.png"},
+    profileImage: {type: String, default: ""},
   },
   {
     timestamps: true

@@ -35,6 +35,7 @@ function Login() {
 
       const response = await fetch("http://localhost:5008/api/auth/login", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,14 +53,10 @@ function Login() {
         return;
       }
 
-      // Store simplified auth info for later use in requests
-      localStorage.setItem("mockToken", data.auth?.mockToken || "");
-      localStorage.setItem("userId", data.data?.userId || "");
-      localStorage.setItem("username", data.data?.username || "");
-      localStorage.setItem("email", data.data?.email || "");
-      localStorage.setItem("role", data.data?.role || "user");
-
+      //new cookie dispatch
+      window.dispatchEvent(new Event("authChanged"));
       navigate("/");
+
     } catch (error) {
       setError("Something went wrong while logging in.");
     } finally {

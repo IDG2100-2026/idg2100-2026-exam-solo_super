@@ -74,6 +74,7 @@ function TournamentPage() {
         `http://localhost:5008/api/tournaments/${id}/join`,
         {
           method: "PATCH",
+          credentials: "include",
           headers,
         }
       );
@@ -114,6 +115,7 @@ function TournamentPage() {
 
       const response = await fetch("http://localhost:5008/api/games/comments", {
         method: "POST",
+        credentials: "include",
         headers,
         body: JSON.stringify({
           targetType: "tournament",

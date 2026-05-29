@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require("../middleware/verifyToken");
 
 const {
   registerUser,
@@ -16,6 +17,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 // Current
-router.get("/me", authMiddleware, getCurrentUser);
+router.get("/me", verifyToken, getCurrentUser);
+
+//router.get("/admin/dashboard", verifyToken, isAdmin, getAdminDashboard);
 
 module.exports = router;

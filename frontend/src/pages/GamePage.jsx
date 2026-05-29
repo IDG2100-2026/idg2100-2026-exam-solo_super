@@ -186,6 +186,7 @@ function GamePage() {
 
       const response = await fetch("http://localhost:5008/api/games/comments", {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
           "x-user-id": userId || "",

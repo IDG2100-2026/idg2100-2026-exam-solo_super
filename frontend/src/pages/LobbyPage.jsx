@@ -70,6 +70,7 @@ function LobbyPage() {
           `http://localhost:5008/api/games/matches/${match._id}/join`,
           {
             method: "PATCH",
+            credentials: "include",
             headers,
           }
         );

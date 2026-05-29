@@ -210,7 +210,6 @@ const uploadProfileImage = async (req, res) => {
       });
     }
 
-    // only owner or admin
     const isOwner = req.user && req.user.userId === user._id.toString();
     const isAdmin = req.user && req.user.role === "admin";
 
@@ -228,46 +227,33 @@ const uploadProfileImage = async (req, res) => {
       });
     }
 
-    // original uploaded file
     const originalPath = req.file.path;
-
-    // new compressed file name
+    const uploadDir = path.dirname(originalPath);
     const compressedFilename = `compressed-${Date.now()}.webp`;
+    const compressedPath = path.join(uploadDir, compressedFilename);
 
-    // create path for compressed file
-    const compressedPath = path.join(
-      path.dirname(originalPath),
-      compressedFilename
-    );
-
-    // resize image
     await sharp(originalPath)
       .resize(300, 300, { fit: "cover" })
       .webp({ quality: 80 })
       .toFile(compressedPath);
 
-    // delete original uploaded file
-    if (fs.existsSync(originalPath)) {
-      fs.unlinkSync(originalPath);
-    }
+      //!!!!!! uncomment and it will delete the images, because of my pc settings I can't use this
+    //if (fs.existsSync(originalPath)) {
+    //  fs.unlinkSync(originalPath);
+    //}
 
-    // delete old profile image
     if (
       user.profileImage &&
       user.profileImage.startsWith("/uploads/profile-images/")
     ) {
-      const oldImagePath = path.join(
-        __dirname,
-        "..",
-        user.profileImage.replace(/^\//, "")
-      );
+      const oldImageName = path.basename(user.profileImage);
+      const oldImagePath = path.join(uploadDir, oldImageName);
 
       if (fs.existsSync(oldImagePath)) {
         fs.unlinkSync(oldImagePath);
       }
     }
 
-    // save new image path in DB
     user.profileImage = `/uploads/profile-images/${compressedFilename}`;
     await user.save();
 
@@ -279,6 +265,8 @@ const uploadProfileImage = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error("Profile image upload error:", error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to upload profile image.",
