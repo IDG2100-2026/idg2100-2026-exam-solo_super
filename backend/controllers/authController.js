@@ -181,6 +181,18 @@ const loginUser = async (req, res) => {
     });
   }
 };
+const logoutUser = async (req, res) => {
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully.",
+  });
+};
 
 const getCurrentUser = async (req, res) => {
   try {
@@ -224,5 +236,6 @@ const getCurrentUser = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser,
   getCurrentUser
 };

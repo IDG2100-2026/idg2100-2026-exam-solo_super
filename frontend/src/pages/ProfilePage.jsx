@@ -26,9 +26,8 @@ function ProfilePage() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Gets logged-in user info from localStorage
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role");
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState("");
 
   const getProfileImageUrl = (imagePath) => {
   if (
@@ -51,105 +50,112 @@ function ProfilePage() {
   return "/default_profile.png";
 };
 
-  // Runs when the page loads, or when userId/role changes
-  useEffect(() => {
-    // Fetches profile data from backend
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        setError("");
+ // Runs when the profile page loads
+useEffect(() => {
+  const fetchCurrentUser = async () => {
+    const response = await fetch("http://localhost:5008/api/auth/me", {
+      credentials: "include",
+    });
 
-        // If no userId exists, user is not logged in
-        if (!userId) {
-          setError("No logged-in user found.");
-          setLoading(false);
-          return;
-        }
+    const data = await response.json();
 
-        const response = await fetch(`http://localhost:5008/api/users/${userId}`, {
+    if (!response.ok) {
+      setError("You must be logged in to view your profile.");
+      return null;
+    }
+
+    setUserId(data.data._id);
+    setRole(data.data.role);
+
+    return data.data;
+  };
+
+  const fetchProfile = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5008/api/users/${id}`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Failed to load profile.");
+        return;
+      }
+
+      setUser(data.data);
+
+      setFormData({
+        email: data.data.email || "",
+        age: data.data.age || "",
+        password: "",
+      });
+
+      setProfileImage(getProfileImageUrl(data.data.profileImage));
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+      setError("Could not connect to the server.");
+    }
+  };
+
+  const fetchRecentGames = async (id) => {
+    try {
+      setLoadingRecentGames(true);
+
+      const response = await fetch(
+        "http://localhost:5008/api/games/matches?limit=100&sortBy=createdAt&order=desc",
+        {
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": userId,
-            "x-user-role": role || "user",
-          },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          setError(data.message || "Failed to load profile.");
-          setLoading(false);
-          return;
         }
+      );
 
-        // Save user data to state
-        setUser(data.data);
+      const data = await response.json();
 
-        // Fill edit form with existing user data
-        setFormData({
-          email: data.data.email || "",
-          age: data.data.age || "",
-          password: "",
-        });
-
-        // Adds timestamp to prevent browser from showing old cached image
-        setProfileImage(getProfileImageUrl(data.data.profileImage));
-
-      } catch (err) {
-        console.error("Profile fetch error:", err);
-        setError("Could not connect to the server.");
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        console.error("Failed to load recent matches:", data.message);
+        return;
       }
-    };
 
-    // Fetches matches and filters only games this user participated in
-    const fetchRecentGames = async () => {
-      try {
-        setLoadingRecentGames(true);
+      const matches = Array.isArray(data.data) ? data.data : [];
 
-        if (!userId) {
-          setLoadingRecentGames(false);
-          return;
-        }
+      const filteredMatches = matches.filter((match) => {
+        const players = Array.isArray(match.players) ? match.players : [];
 
-        const response = await fetch(
-          "http://localhost:5008/api/games/matches?limit=100&sortBy=createdAt&order=desc"
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.error("Failed to load recent matches:", data.message);
-          setLoadingRecentGames(false);
-          return;
-        }
-
-        const matches = Array.isArray(data.data) ? data.data : [];
-
-        // Keep only matches where this user is one of the players
-        const filteredMatches = matches.filter((match) => {
-          const players = Array.isArray(match.players) ? match.players : [];
-
-          return players.some((player) => {
-            const playerUserId = player?.user?._id || player?.user || null;
-            return playerUserId === userId;
-          });
+        return players.some((player) => {
+          const playerUserId = player?.user?._id || player?.user || null;
+          return playerUserId === id;
         });
+      });
 
-        // Only show latest 5 games
-        setRecentGames(filteredMatches.slice(0, 5));
-      } catch (err) {
-        console.error("Recent games fetch error:", err);
-      } finally {
-        setLoadingRecentGames(false);
-      }
-    };
+      setRecentGames(filteredMatches.slice(0, 5));
+    } catch (err) {
+      console.error("Recent games fetch error:", err);
+    } finally {
+      setLoadingRecentGames(false);
+    }
+  };
 
-    fetchProfile();
-    fetchRecentGames();
-  }, [userId, role]);
+  const loadProfilePage = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const currentUser = await fetchCurrentUser();
+
+      if (!currentUser) return;
+
+      await fetchProfile(currentUser._id);
+      await fetchRecentGames(currentUser._id);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadProfilePage();
+}, []);
 
   // Updates formData when user types in an input
   const handleChange = (event) => {

@@ -19,6 +19,7 @@ dotenv.config();
 
 // Creates Express
 const app = express();
+app.use(cookieParser());
 
 //connect to database
 connectDB();
@@ -27,6 +28,7 @@ app.use(cors({
   origin: "http://localhost:5173",
   credentials: true
 }));
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -49,7 +51,7 @@ app.get("/", (req, res) => {
 });
 
 //main routes
-app.use(cookieParser());
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);

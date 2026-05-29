@@ -23,11 +23,11 @@ router.get("/", authMiddleware, getAllUsers);
 router.get("/:id", authMiddleware, getUserById);
 
 // update
-router.patch("/:id", authMiddleware, updateUser, verifyToken);
+router.patch("/:id", updateUser, verifyToken);
 
 // ban or unban a user
 router.patch("/:id/ban", authMiddleware, adminMiddleware, banUser);
 
-router.patch("/:id/profile-image", verifyToken, authMiddleware, upload.single("profileImage"), uploadProfileImage);
+router.patch("/:id/profile-image", verifyToken, upload.single("profileImage"), uploadProfileImage);
 
 module.exports = router;

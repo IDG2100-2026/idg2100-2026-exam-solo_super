@@ -23,42 +23,57 @@ function Header() {
   const navigate = useNavigate();
 
   //save in storage
-  useEffect(() => {
-    const checkLogin = () => {
-      const storedUserId = localStorage.getItem("userId");
-      const storedUsername = localStorage.getItem("username");
+useEffect(() => {
+  const checkLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:5008/api/auth/me", {
+        credentials: "include",
+      });
 
-      setIsLoggedIn(!!storedUserId);
-      setUserId(storedUserId);
-      setUsername(storedUsername || "");
-    };
+      if (!response.ok) {
+        setIsLoggedIn(false);
+        setUserId(null);
+        setUsername("");
+        return;
+      }
 
-    checkLogin();
+      const data = await response.json();
 
-    window.addEventListener("storage", checkLogin);
-    window.addEventListener("authChanged", checkLogin);
-
-    return () => {
-      window.removeEventListener("storage", checkLogin);
-      window.removeEventListener("authChanged", checkLogin);
-    };
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("role");
-    localStorage.removeItem("mockToken");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-
-    setIsLoggedIn(false);
-    setUserId(null);
-    setUsername("");
-
-    window.dispatchEvent(new Event("authChanged"));
-    navigate("/login");
+      setIsLoggedIn(true);
+      setUserId(data.data._id);
+      setUsername(data.data.username);
+    } catch (error) {
+      setIsLoggedIn(false);
+      setUserId(null);
+      setUsername("");
+    }
   };
 
+  checkLogin();
+
+  window.addEventListener("authChanged", checkLogin);
+
+  return () => {
+    window.removeEventListener("authChanged", checkLogin);
+  };
+}, []);
+const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:5008/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+
+  setIsLoggedIn(false);
+  setUserId(null);
+  setUsername("");
+
+  window.dispatchEvent(new Event("authChanged"));
+  navigate("/login");
+};
   return (
     //home page
     <header className={`site-header ${theme}`}>
