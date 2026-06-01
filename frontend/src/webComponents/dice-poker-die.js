@@ -1,6 +1,6 @@
 class DicePokerDie extends HTMLElement {
   static get observedAttributes() {
-    return ['face', 'held', 'owner', 'die-id'];
+    return ['face', 'held', 'owner', 'die-id', 'disabled'];
   }
 
   constructor() {
@@ -11,6 +11,7 @@ class DicePokerDie extends HTMLElement {
   connectedCallback() {
     this.render();
     this.shadowRoot.addEventListener('click', () => {
+      if (this.getAttribute('disabled') === 'true') return;
       const isHeld = this.getAttribute('held') === 'true';
       this.setAttribute('held', String(!isHeld));
       this.dispatchEvent(new CustomEvent('dp:die-held-changed', {

@@ -23,39 +23,44 @@ function Header() {
   const navigate = useNavigate();
 
   //save in storage
-useEffect(() => {
-  const checkLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:5008/api/auth/me", {
-        credentials: "include",
-      });
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const response = await fetch("http://localhost:5008/api/auth/me", {
+          credentials: "include",
+        });
 
-      if (!response.ok) {
+       if (response.status === 401) {
         setIsLoggedIn(false);
         setUserId(null);
         setUsername("");
         return;
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        console.error("Failed to check login status");
+        return;
+      }
 
-      setIsLoggedIn(true);
-      setUserId(data.data._id);
-      setUsername(data.data.username);
-    } catch (error) {
-      setIsLoggedIn(false);
-      setUserId(null);
-      setUsername("");
-    }
-  };
+        const data = await response.json();
 
-  checkLogin();
+        setIsLoggedIn(true);
+        setUserId(data.data._id);
+        setUsername(data.data.username);
+      } catch (error) {
+        setIsLoggedIn(false);
+        setUserId(null);
+        setUsername("");
+      }
+    };
 
-  window.addEventListener("authChanged", checkLogin);
+    checkLogin();
 
-  return () => {
-    window.removeEventListener("authChanged", checkLogin);
-  };
+    window.addEventListener("authChanged", checkLogin);
+
+    return () => {
+      window.removeEventListener("authChanged", checkLogin);
+    };
 }, []);
 const handleLogout = async () => {
   try {

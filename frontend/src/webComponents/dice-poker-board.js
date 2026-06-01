@@ -1,6 +1,6 @@
 class DicePokerBoard extends HTMLElement {
   static get observedAttributes() {
-    return ['player1', 'player2', 'bestof', 'include-straight'];
+    return ['player1', 'player2', 'bestof', 'include-straight', 'current-user-player'];
   }
 
   constructor() {
@@ -28,6 +28,7 @@ class DicePokerBoard extends HTMLElement {
   get bestof() { return parseInt(this.getAttribute('bestof') || '3'); }
   get includeStraight() { return this.getAttribute('include-straight') !== 'false'; }
   get winsNeeded() { return Math.ceil(this.bestof / 2); }
+  get currentUserPlayer() {return this.getAttribute('current-user-player') || 'spectator';}
 
   evaluateHand(faces) {
     const faceOrder = ['7', '8', 'J', 'Q', 'K', 'A'];
@@ -118,6 +119,10 @@ class DicePokerBoard extends HTMLElement {
     this.doRoll();
   }
 
+  canCurrentUserPlay() {
+    return this.currentUserPlayer === this.currentPlayer;
+}
+
   doRoll() {
     const player = this.currentPlayer;
     const dice = this.shadowRoot.querySelectorAll(`.dice-row[data-player="${player}"] dice-poker-die`);
@@ -149,6 +154,8 @@ class DicePokerBoard extends HTMLElement {
   }
 
   endTurn() {
+    if (!this.canCurrentUserPlay()) return;
+
     if (this.currentPlayer === 'player1') {
       this.player1Done = true;
       this.currentPlayer = 'player2';
@@ -247,16 +254,39 @@ class DicePokerBoard extends HTMLElement {
     if (!rollBtn || !endTurnBtn) return;
 
     const outOfRolls = this.rollsLeft[player] <= 0;
-    rollBtn.disabled = outOfRolls;
-    rollBtn.textContent = `Roll (${this.rollsLeft[player]} left)`;
+    const isMyTurn = this.currentUserPlayer === player;
 
-    const dice = this.shadowRoot.querySelectorAll(`.dice-row[data-player="${player}"] dice-poker-die`);
+    console.log("CONTROL DEBUG", {
+      currentUserPlayer: this.currentUserPlayer,
+      currentPlayer: this.currentPlayer,
+      isMyTurn,
+    });
+
+
+    rollBtn.disabled = outOfRolls || !isMyTurn;
+    endTurnBtn.disabled = !isMyTurn;
+
+    rollBtn.textContent = isMyTurn
+      ? `Roll (${this.rollsLeft[player]} left)`
+      : `Waiting for ${this.getPlayerName(player)}`;
+
+    this.shadowRoot.querySelectorAll("dice-poker-die").forEach((die) => {
+      const owner = die.getAttribute("owner");
+      const canClickDie = isMyTurn && owner === player;
+      die.setAttribute("disabled", String(!canClickDie));
+    });
+
+    const dice = this.shadowRoot.querySelectorAll(
+      `.dice-row[data-player="${player}"] dice-poker-die`
+    );
+
     dice.forEach((die, i) => {
       this.held[player][i] = die.getAttribute('held') === 'true';
     });
 
     const p1Section = this.shadowRoot.querySelector('.player-section[data-player="player1"]');
     const p2Section = this.shadowRoot.querySelector('.player-section[data-player="player2"]');
+
     if (p1Section) p1Section.classList.toggle('active', player === 'player1');
     if (p2Section) p2Section.classList.toggle('active', player === 'player2');
   }
@@ -275,7 +305,62 @@ class DicePokerBoard extends HTMLElement {
     }
     this.startRound();
   }
+  getGameState() {
+    return {
+      round: this.round,
+      scores: { ...this.scores },
+      currentPlayer: this.currentPlayer,
+      rollsLeft: { ...this.rollsLeft },
+      held: {
+        player1: [...this.held.player1],
+        player2: [...this.held.player2]
+      },
+      faces: {
+        player1: [...this.faces.player1],
+        player2: [...this.faces.player2]
+      },
+      player1Done: this.player1Done,
+      player2Done: this.player2Done,
+      matchOver: this.matchOver
+    };
+  }
 
+  canCurrentUserPlay() {
+  return this.currentUserPlayer === this.currentPlayer;
+  }
+
+  attributeChangedCallback() {
+    this.updateControls();
+  }
+
+  applyGameState(state) {
+    if (!state) return;
+
+    this.round = state.round;
+    this.scores = state.scores;
+    this.currentPlayer = state.currentPlayer;
+    this.rollsLeft = state.rollsLeft;
+    this.held = state.held;
+    this.faces = state.faces;
+    this.player1Done = state.player1Done;
+    this.player2Done = state.player2Done;
+    this.matchOver = state.matchOver;
+
+    this.render();
+
+    ["player1", "player2"].forEach((player) => {
+      const dice = this.shadowRoot.querySelectorAll(
+        `.dice-row[data-player="${player}"] dice-poker-die`
+      );
+
+      dice.forEach((die, index) => {
+        die.setAttribute("face", this.faces[player]?.[index] || "?");
+        die.setAttribute("held", String(this.held[player]?.[index] || false));
+      });
+    });
+
+    this.updateControls();
+  }
 
   render() {
     this.shadowRoot.innerHTML = `
@@ -405,12 +490,23 @@ class DicePokerBoard extends HTMLElement {
       </div>
     `;
 
-    this.shadowRoot.querySelector('#roll-btn').addEventListener('click', () => this.doRoll());
-    this.shadowRoot.querySelector('#end-turn-btn').addEventListener('click', () => this.endTurn());
+    this.shadowRoot.querySelector('#roll-btn').addEventListener('click', () => {
+      if (!this.canCurrentUserPlay()) return;
+      this.doRoll();
+    });
+
+    this.shadowRoot.querySelector('#end-turn-btn').addEventListener('click', () => {
+        if (!this.canCurrentUserPlay()) return;
+        this.endTurn();
+      });
+
     this.shadowRoot.querySelector('#next-round-btn').addEventListener('click', () => this.nextRound());
 
     //Handles held dices
     this.shadowRoot.addEventListener('dp:die-held-changed', (e) => {
+       if (!this.canCurrentUserPlay()) {
+        return;
+  }
       const { dieId, held, owner } = e.detail;
       const index = parseInt(dieId.split('-')[1]);
       if (this.held[owner]) {

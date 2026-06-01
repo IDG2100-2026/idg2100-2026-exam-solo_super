@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 
 // Imports the custom web components from oblig 1
 import "../webComponents/dice-poker-board";
 import "../webComponents/dice-poker-die";
 import "../webComponents/dice-poker-monitor";
+
+const socket = io("http://localhost:5008", {
+  withCredentials: true,
+});
 
 function GamePage() {
   // Gets the match id from the URL
@@ -30,8 +35,32 @@ function GamePage() {
   const boardRef = useRef(null);
 
 
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role") || "anonymous";
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState("anonymous");
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("http://localhost:5008/api/auth/me", {
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        setUserId(null);
+        setRole("anonymous");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) return;
+
+      setUserId(data.data._id);
+      setRole(data.data.role || "user");
+    } catch (err) {
+      setUserId(null);
+      setRole("anonymous");
+    }
+  };
 
   // Fetches the current match from the backend
   const fetchMatch = async () => {
@@ -72,9 +101,44 @@ function GamePage() {
     }
   };
 
+    useEffect(() => {
+      if (!id) return;
+
+      socket.emit("join-match-room", id);
+
+      socket.on("match-updated", () => {
+        fetchMatch();
+        fetchComments();
+      });
+
+      socket.on("new-comment", (comment) => {
+        setComments((prevComments) => [...prevComments, comment]);
+      });
+
+      socket.on("dice-board-event", ({ eventName, detail }) => {
+        console.log("Live board event:", eventName, detail);
+      });
+
+      socket.on("dice-board-state", (state) => {
+        const boardElement = boardRef.current;
+        if (!boardElement) return;
+
+        boardElement.applyGameState(state);
+      });
+
+      return () => {
+        socket.emit("leave-match-room", id);
+        socket.off("new-comment");
+        socket.off("dice-board-event");
+        socket.off("match-updated");
+        socket.off("dice-board-state");
+      };
+}, [id]);
+
   // Runs when the page loads or when the URL id changes
   useEffect(() => {
     fetchMatch();
+    fetchCurrentUser();
     fetchComments();
   }, [id]);
 
@@ -157,6 +221,7 @@ function GamePage() {
 
     //Reload
         await fetchMatch();
+        socket.emit("match-updated", id);
       } catch (err) {
         console.error("Submit match result error:", err);
         setError("Could not save the match result.");
@@ -165,11 +230,30 @@ function GamePage() {
       }
     };
 
+    //dispatch live updates
+    const handleLiveBoardEvent = () => {
+      const boardElement = boardRef.current;
+      if (!boardElement) return;
+
+      socket.emit("dice-board-state", {
+        matchId: id,
+        state: boardElement.getGameState(),
+      });
+  };
+
+    boardElement.addEventListener("dp:round-start", handleLiveBoardEvent);
+    boardElement.addEventListener("dp:turn-changed", handleLiveBoardEvent);
+    boardElement.addEventListener("dp:roll-executed", handleLiveBoardEvent);
+    boardElement.addEventListener("dp:round-decided", handleLiveBoardEvent);
 
     boardElement.addEventListener("dp:match-decided", handleMatchDecided);
 
     // Cleanup: removes listener to avoid duplicate event handlers
     return () => {
+      boardElement.removeEventListener("dp:round-start", handleLiveBoardEvent);
+      boardElement.removeEventListener("dp:turn-changed", handleLiveBoardEvent);
+      boardElement.removeEventListener("dp:roll-executed", handleLiveBoardEvent);
+      boardElement.removeEventListener("dp:round-decided", handleLiveBoardEvent);
       boardElement.removeEventListener("dp:match-decided", handleMatchDecided);
     };
   }, [match, id]);
@@ -208,7 +292,11 @@ function GamePage() {
 
       // Clears textarea and reloads comments
       setCommentText("");
-      await fetchComments();
+
+      socket.emit("new-comment", {
+        matchId: id,
+        comment: data.data,
+      });
     } catch (err) {
       console.error("Post comment error:", err);
       setError("Could not post comment.");
@@ -266,6 +354,13 @@ function GamePage() {
   const isFinished = match?.status === "finished";
   const canStart = totalPlayers >= 2 && !isFinished;
 
+  const currentUserPlayer =
+  playerOne?.user?._id === userId || playerOne?.user === userId
+    ? "player1"
+    : playerTwo?.user?._id === userId || playerTwo?.user === userId
+    ? "player2"
+    : "spectator";
+
   return (
     <main className="game-page">
       <section className="game-header-card">
@@ -308,6 +403,7 @@ function GamePage() {
             player2={playerTwoName}
             bestof={String(match.bestOf)}
             include-straight={String(match.straightsAllowed)}
+            current-user-player={currentUserPlayer}
           ></dice-poker-board>
         </section>
       )}

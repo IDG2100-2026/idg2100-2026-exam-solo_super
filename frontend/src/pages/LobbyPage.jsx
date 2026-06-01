@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:5008", {
+  withCredentials: true,
+});
 
 function LobbyPage() {
   const navigate = useNavigate();
@@ -76,15 +81,15 @@ function LobbyPage() {
         );
 
         const data = await response.json();
-        if (!response.ok) {
-          if (data.message === "You have already joined this match.") {
-            navigate(`/games/${match._id}`);
-            return;
-          }
 
+        if (!response.ok) {
           setError(data.message || "Failed to join match.");
           return;
         }
+
+        socket.emit("match-updated", match._id);
+
+        navigate(`/games/${match._id}`);
 
         navigate(`/games/${match._id}`);
       } catch (err) {
