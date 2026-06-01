@@ -40,7 +40,9 @@ const matchSchema = new mongoose.Schema(
     matchComments: {type: String, default: ""},
     commentsEnabled: {type: Boolean,default: true},
     startedAt: {type: Date, default: null},
-    finishedAt: {type: Date, default: null}
+    finishedAt: {type: Date, default: null}, 
+    creatorElo: {type: Number, default: 1200},
+    eloPreference: {type: String, enum: ["any", "higher", "lower", "similar"], default: "any"}
   },
   {
     timestamps: true

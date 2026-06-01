@@ -9,13 +9,42 @@ function CreateGamePage() {
     straightsAllowed: true,
     roundTimeSeconds: 10,
     isAnonymousMatch: false,
+    eloPreference: "any",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role") || "anonymous";
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState("anonymous");
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("http://localhost:5008/api/auth/me", {
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        setUserId(null);
+        setRole("anonymous");
+        return null;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return null;
+      }
+
+      setUserId(data.data._id);
+      setRole(data.data.role);
+
+      return data.data;
+    } catch (error) {
+      console.error("Current user fetch error:", error);
+      return null;
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -41,19 +70,12 @@ function CreateGamePage() {
     setError("");
 
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (userId) {
-        headers["x-user-id"] = userId;
-        headers["x-user-role"] = role;
-      }
-
       const response = await fetch("http://localhost:5008/api/games/matches", {
         method: "POST",
         credentials: "include",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(formData),
       });
 
@@ -61,7 +83,6 @@ function CreateGamePage() {
 
       if (!response.ok) {
         setError(data.message || "Failed to create match.");
-        setLoading(false);
         return;
       }
 
@@ -112,6 +133,20 @@ function CreateGamePage() {
               <option value={3}>3 seconds</option>
               <option value={10}>10 seconds</option>
               <option value={30}>30 seconds</option>
+            </select>
+          </label>
+
+          <label>
+            Opponent Elo
+            <select
+              name="eloPreference"
+              value={formData.eloPreference}
+              onChange={handleChange}
+            >
+              <option value="any">Any Elo</option>
+              <option value="higher">Only higher Elo</option>
+              <option value="lower">Only lower Elo</option>
+              <option value="similar">Similar Elo (+/- 100)</option>
             </select>
           </label>
 

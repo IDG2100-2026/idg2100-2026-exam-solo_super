@@ -10,6 +10,7 @@ function ProfilePage() {
     email: "",
     age: "",
     password: "",
+    aboutMe: "",
   });
 
   // Stores profile image URL and edit mode state
@@ -92,6 +93,7 @@ useEffect(() => {
         email: data.data.email || "",
         age: data.data.age || "",
         password: "",
+        aboutMe: data.data.aboutMe || "",
       });
 
       setProfileImage(getProfileImageUrl(data.data.profileImage));
@@ -233,6 +235,7 @@ useEffect(() => {
       const payload = {
         email: formData.email,
         age: Number(formData.age),
+        aboutMe: formData.aboutMe,
       };
 
       // Only update password if user typed one
@@ -267,6 +270,7 @@ useEffect(() => {
         email: data.data.email || "",
         age: data.data.age || "",
         password: "",
+        aboutMe: data.data.aboutMe || "",
       });
 
       // Keep image updated if backend returns it
@@ -336,6 +340,7 @@ useEffect(() => {
             <p><strong>ELO Rating:</strong> {user?.eloRating}</p>
             <p><strong>Wins:</strong> {user?.wins || 0}</p>
             <p><strong>Matches Played:</strong> {user?.matchesPlayed || 0}</p>
+             <p>{user?.aboutMe?.trim()? user.aboutMe: "This player has not written an about me yet."}</p>
 
             {/* Toggles edit form */}
             <button
@@ -389,6 +394,16 @@ useEffect(() => {
                   placeholder="Leave blank to keep current password"
                 />
               </label>
+
+              <label>About Me</label>
+
+              <textarea
+                name="aboutMe"
+                value={formData.aboutMe}
+                onChange={handleChange}
+                maxLength={500}
+                rows={5}
+              />
 
               {error && <p className="form-error">{error}</p>}
               {successMessage && <p className="form-success">{successMessage}</p>}

@@ -25,7 +25,8 @@ const createMatch = async (req, res) => {
       straightsAllowed,
       roundTimeSeconds,
       isAnonymousMatch = false,
-      hideFromAnonymous = false
+      hideFromAnonymous = false, 
+      eloPreference = "any"
     } = req.body;
 
     if (!bestOf || straightsAllowed === undefined || !roundTimeSeconds) {
@@ -34,6 +35,8 @@ const createMatch = async (req, res) => {
         message: "bestOf, straightsAllowed, and roundTimeSeconds are required."
       });
     }
+
+    const creator = req.user?.userId ? await User.findById(req.user.userId) : null;
 
     const categoryKey = `bestOf${bestOf}_straights${
       straightsAllowed ? "On" : "Off"
@@ -52,7 +55,9 @@ const createMatch = async (req, res) => {
       roundTimeSeconds,
       categoryKey,
       status: "waiting",
-      commentsEnabled: true
+      commentsEnabled: true, 
+      creatorElo: creator?.eloRating || 1200, 
+      eloPreference,
     });
 
     return res.status(201).json({
@@ -99,10 +104,46 @@ const joinMatch = async (req, res) => {
         message: "This match is only visible to logged-in users."
       });
     }
+    
+    if (!req.user || req.user.role === "anonymous" || !req.user.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "You must be logged in to join a game."
+      });
+    }
 
     const registeredPlayers = match.players ? match.players.length : 0;
     const anonymousPlayers = match.anonymousPlayers || 0;
     const totalPlayers = registeredPlayers + anonymousPlayers;
+
+    const joiningUser = await User.findById(req.user.userId);
+
+    const creatorElo = match.creatorElo || 1200;
+    const joiningElo = joiningUser?.eloRating || 1200;
+
+    if (match.eloPreference === "higher" && joiningElo <= creatorElo) {
+      return res.status(403).json({
+        success: false,
+        message: "Only players with higher Elo can join this game."
+      });
+    }
+
+    if (match.eloPreference === "lower" && joiningElo >= creatorElo) {
+      return res.status(403).json({
+        success: false,
+        message: "Only players with lower Elo can join this game."
+      });
+    }
+
+    if (
+      match.eloPreference === "similar" &&
+      Math.abs(joiningElo - creatorElo) > 100
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Only players within 100 Elo can join this game."
+      });
+    }
 
     if (totalPlayers >= 2) {
       return res.status(400).json({
@@ -326,6 +367,12 @@ const getAllMatches = async (req, res) => {
 
     const query = {};
 
+    let currentUser = null;
+
+    if (req.user?.userId) {
+      currentUser = await User.findById(req.user.userId);
+    }
+
     if (status) query.status = status;
     if (bestOf) query.bestOf = Number(bestOf);
     if (straightsAllowed !== undefined) {
@@ -352,6 +399,27 @@ const getAllMatches = async (req, res) => {
       .populate("players.user", "username eloRating")
       .populate("winnerUser", "username eloRating");
 
+      const visibleMatches = matches.filter((match) => {
+      if (!currentUser) return true;
+
+      const creatorElo = match.creatorElo || 1200;
+      const userElo = currentUser.eloRating || 1200;
+
+      if (match.eloPreference === "higher") {
+        return userElo > creatorElo;
+      }
+
+      if (match.eloPreference === "lower") {
+        return userElo < creatorElo;
+      }
+
+      if (match.eloPreference === "similar") {
+        return Math.abs(userElo - creatorElo) <= 100;
+      }
+
+      return true;
+    });
+
     return res.status(200).json({
       success: true,
       message: "Matches retrieved successfully.",
@@ -361,7 +429,7 @@ const getAllMatches = async (req, res) => {
         pageSize,
         totalPages: Math.ceil(totalItems / pageSize)
       },
-      data: matches
+      data: visibleMatches
     });
   } catch (error) {
     return res.status(500).json({

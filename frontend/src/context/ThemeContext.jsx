@@ -7,12 +7,18 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState("light");
   const [accentColor, setAccentColor] = useState("#8b5cf6"); // default purple
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [boardColor, setBoardColor] = useState("#14532d");
 
   // Load saved settings on first render
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     const savedAccent = localStorage.getItem("accentColor");
     const savedSound = localStorage.getItem("soundEnabled");
+    const savedBoardColor = localStorage.getItem("boardColor");
+
+    if (savedBoardColor) {
+      setBoardColor(savedBoardColor);
+    }
 
     if (savedTheme === "light" || savedTheme === "dark") {
       setTheme(savedTheme);
@@ -35,12 +41,13 @@ export function ThemeProvider({ children }) {
 
     // Apply accent color as CSS variable
     document.documentElement.style.setProperty("--accent", accentColor);
+    document.documentElement.style.setProperty("--board-bg-color", accentColor);
 
     // Save to localStorage
     localStorage.setItem("theme", theme);
     localStorage.setItem("accentColor", accentColor);
     localStorage.setItem("soundEnabled", String(soundEnabled));
-  }, [theme, accentColor, soundEnabled]);
+  }, [theme, accentColor, soundEnabled, boardColor]);
 
   // Theme controls
   const setLightMode = () => setTheme("light");
@@ -59,6 +66,8 @@ export function ThemeProvider({ children }) {
         setAccentColor,
         soundEnabled,
         toggleSound,
+        boardColor,
+        setBoardColor,
       }}
     >
       {children}

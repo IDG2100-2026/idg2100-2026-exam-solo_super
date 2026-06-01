@@ -15,8 +15,8 @@ function HomePage() {
   const [joiningMatchId, setJoiningMatchId] = useState("");
   const [error, setError] = useState("");
 
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role") || "anonymous";
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState("anonymous");
 
   const lobbyPreviewCount =
     Number(localStorage.getItem("homepageLobbyCount")) || 5;

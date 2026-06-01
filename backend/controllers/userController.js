@@ -125,7 +125,7 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, password, age } = req.body;
+    const { email, password, age, aboutMe } = req.body;
 
     const user = await User.findById(id);
 
@@ -150,6 +150,9 @@ const updateUser = async (req, res) => {
     // update fields only if provided
     if (email !== undefined) {
       user.email = email;
+    }
+    if (aboutMe !== undefined) {
+      user.aboutMe = aboutMe;
     }
 
     if (age !== undefined) {
@@ -184,7 +187,8 @@ const updateUser = async (req, res) => {
         trophies: updatedUser.trophies,
         profileImage: updatedUser.profileImage,
         createdAt: updatedUser.createdAt,
-        updatedAt: updatedUser.updatedAt
+        updatedAt: updatedUser.updatedAt,
+        aboutMe: updatedUser.aboutMe
       }
     });
   } catch (error) {

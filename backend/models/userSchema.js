@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema(
     isBanned: {type: Boolean, default: false},
     trophies: {type: [trophySchema], default: []}, 
     profileImage: {type: String, default: ""},
+    aboutMe: {type: String, default: "", maxlength: 500},
   },
   {
     timestamps: true

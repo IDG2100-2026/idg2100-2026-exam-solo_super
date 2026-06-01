@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import { playSound } from "../utils/soundManager";
 
 // Imports the custom web components from oblig 1
 import "../webComponents/dice-poker-board";
@@ -218,6 +219,7 @@ function GamePage() {
         }
 
         setResultMessage("Match result saved successfully.");
+        playSound("/sounds/victory.mp3");
 
     //Reload
         await fetchMatch();

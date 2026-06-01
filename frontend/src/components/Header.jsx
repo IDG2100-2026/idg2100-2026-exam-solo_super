@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useEffect, useState } from "react";
+import { playClick } from "../utils/soundManager";
 
 //customizable content
 function Header() {
@@ -11,6 +12,8 @@ function Header() {
     accentColor,
     setAccentColor,
     soundEnabled,
+    boardColor,
+    setBoardColor,
     toggleSound,
   } = useTheme();
 
@@ -164,8 +167,13 @@ const handleLogout = async () => {
             </div>
 
             <div className="customization-group">
+              <p>Board Background</p>
+
+            </div>
+
+            <div className="customization-group">
               <p>Sound</p>
-              <button type="button" className="theme-button">
+              <button type="button" className="theme-button" onClick={() => {playClick(); toggleSound();}}>
                 {soundEnabled ? "Sound On" : "Sound Off"}
               </button>
             </div>

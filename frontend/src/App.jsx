@@ -15,8 +15,31 @@ import AboutSpanishDice from "./pages/AboutSpanishDice";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Unauthorized from "./pages/Unauthorized";
 import TermsAndConditions from "./pages/TermsAndConditions";
+import NotFoundPage from "./pages/NotFoundPage";
+import { useEffect } from "react";
+import { playSound } from "./utils/soundManager";
+
 
 function App() {
+  useEffect(() => {
+    const handleClick = (event) => {
+      const clickable = event.target.closest(
+        "button, a, input, select, textarea"
+      );
+
+      if (!clickable) return;
+
+      playSound("/sounds/click.mp3");
+    };
+
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, []);
+
+  
   return (
     <Layout>
       <Routes>
@@ -33,7 +56,7 @@ function App() {
         <Route path="/about-game" element={<AboutSpanishDice />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsAndConditions />} />
-        <Route path="*" element={<Unauthorized />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   );
