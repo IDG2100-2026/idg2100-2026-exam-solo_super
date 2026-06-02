@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -32,6 +34,12 @@ function AdminDashboard() {
           <p>Total matches: {stats.totalMatches}</p>
         </>
       )}
+
+      
+
+        <Link to="/admin/users" className="admin-link-card">User Administration </Link>
+        <Link to="/admin/comments" className="admin-link-card">Comment Administration</Link>
+        <Link to="/admin/tournaments" className="admin-link-card">Tournament Administration</Link>
     </main>
   );
 }

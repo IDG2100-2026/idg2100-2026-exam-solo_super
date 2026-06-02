@@ -604,3 +604,13 @@ button {
   border-radius: 50%;
   object-fit: cover;
 }
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.admin-menu{
+  display: grid;
+  grid-template-columns: 1fr;
+}

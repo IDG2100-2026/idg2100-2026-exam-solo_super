@@ -6,6 +6,7 @@ import "./Layout.css";
 
 function Layout({ children }) {
   const location = useLocation();
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   // Example: hide footer on login/register if you want
   const hideFooterRoutes = ["/login", "/signup"];
@@ -15,7 +16,7 @@ function Layout({ children }) {
     <div className="app-layout">
       <Header />
       <main className="main-content">{children}</main>
-      {!shouldHideFooter && <Footer />}
+      {!shouldHideFooter && !isAdminPage && <Footer />}
     </div>
   );
 }

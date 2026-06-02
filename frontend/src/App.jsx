@@ -19,6 +19,10 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { useEffect } from "react";
 import { playSound } from "./utils/soundManager";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminCommentsPage from "./pages/AdminCommentsPage";
+import AdminCreateTournamentPage from "./pages/AdminCreateTournamentPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 
 function App() {
@@ -58,6 +62,10 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsAndConditions />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/comments" element={<AdminCommentsPage />} />
+        <Route path="/admin/tournaments/create" element={<AdminCreateTournamentPage />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

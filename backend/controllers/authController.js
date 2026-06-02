@@ -1,4 +1,6 @@
 const User = require("../models/userSchema");
+const crypto = require("crypto");
+const sendEmail = require("../utils/sendEmail");
 const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
@@ -13,39 +15,32 @@ const registerUser = async (req, res) => {
       });
     }
     if (username.length < 3) {
-  return res.status(400).json({
-    success: false,
-    message: "Username must be at least 3 characters long."
-  });
-}
+      return res.status(400).json({
+        success: false,
+        message: "Username must be at least 3 characters long."
+      });
+    }
 
-if (username.length > 20) {
-  return res.status(400).json({
-    success: false,
-    message: "Username cannot be longer than 20 characters."
-  });
-}
+    if (username.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: "Username cannot be longer than 20 characters."
+      });
+    }
 
-if (password.length < 8) {
-  return res.status(400).json({
-    success: false,
-    message: "Password must be at least 8 characters long."
-  });
-}
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long."
+      });
+    }
 
-if (!email.includes("@")) {
-  return res.status(400).json({
-    success: false,
-    message: "Please enter a valid email address."
-  });
-}
-
-if (age < 18) {
-  return res.status(400).json({
-    success: false,
-    message: "You must be at least 18 years old to register."
-  });
-}
+    if (!email.includes("@")) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address."
+      });
+    }
 
     if (age < 18) {
       return res.status(400).json({
@@ -62,6 +57,13 @@ if (age < 18) {
         message: "Username is already in use."
       });
     }
+    //EMAIL verification:
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    const hashedVerificationToken = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
 
     // if email already exists.
     const existingEmail = await User.findOne({ email });
@@ -81,8 +83,26 @@ if (age < 18) {
       role: role === "admin" ? "admin" : "user",
       eloRating: 1200,
       isBanned: false,
-      trophies: []
+      trophies: [],
+      isEmailVerified: false,
+      emailVerificationToken: hashedVerificationToken,
+      emailVerificationExpires: Date.now() + 15 * 60 * 1000,
     });
+
+    const verificationUrl = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
+    await sendEmail({
+      to: newUser.email,
+      subject: "Verify your Spanish Poker Dice account",
+      html: `
+        <h1>Verify your email</h1>
+        <p>Click the link below to verify your account:</p>
+        <a href="${verificationUrl}">${verificationUrl}</a>
+        <p>This link expires in 15 minutes.</p>
+      `,
+    });
+
+    console.log("Verification link:", verificationUrl);
 
     return res.status(201).json({
       success: true,
@@ -104,6 +124,46 @@ if (age < 18) {
       success: false,
       message: "Failed to register user.",
       error: error.message
+    });
+  }
+};
+
+const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: Date.now() },
+    }).select("+emailVerificationToken +emailVerificationExpires");
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification link is invalid or expired.",
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully. You can now log in.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to verify email.",
+      error: error.message,
     });
   }
 };
@@ -132,6 +192,14 @@ const loginUser = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "This account has been banned."
+      });
+    }
+
+    //remove to login without verified email
+    if (!user.isEmailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Please verify your email before logging in.",
       });
     }
 
@@ -236,6 +304,7 @@ const getCurrentUser = async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
+  verifyEmail,
   logoutUser,
   getCurrentUser
 };

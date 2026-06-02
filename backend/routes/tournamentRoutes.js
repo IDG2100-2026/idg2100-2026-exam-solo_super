@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const verifyToken = require("../middleware/verifyToken");
+const isAdmin = require("../middleware/isAdmin");
 
 const {
   createTournament,
@@ -15,7 +16,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
 // create with admin acess
-router.post("/", createTournament);
+router.post("/tournaments", verifyToken, isAdmin, createTournament );
 
 // Tournament
 router.get("/", getAllTournaments);

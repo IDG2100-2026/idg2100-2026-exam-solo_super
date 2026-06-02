@@ -55,7 +55,11 @@ function Login() {
 
       //new cookie dispatch
       window.dispatchEvent(new Event("authChanged"));
-      navigate("/");
+      if (data.data.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
 
     } catch (error) {
       setError("Something went wrong while logging in.");

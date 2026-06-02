@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema(
     trophies: {type: [trophySchema], default: []}, 
     profileImage: {type: String, default: ""},
     aboutMe: {type: String, default: "", maxlength: 500},
+    isEmailVerified: {type: Boolean,default: false},
+    emailVerificationToken: {type: String, default: null, select: false},
+    emailVerificationExpires: {type: Date, default: null, select: false},
   },
   {
     timestamps: true
