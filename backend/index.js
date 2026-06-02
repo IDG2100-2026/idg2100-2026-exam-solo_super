@@ -60,6 +60,10 @@ app.use("/api/users", userRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/tournaments", tournamentRoutes);
 
+const adminRoutes = require("./routes/adminRoutes");
+
+app.use("/api/admin", adminRoutes);
+
 //error handling
 app.use(errorMiddleware);
 

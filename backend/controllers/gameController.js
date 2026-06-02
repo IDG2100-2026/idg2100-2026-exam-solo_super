@@ -501,10 +501,12 @@ const createComment = async (req, res) => {
       content
     });
 
+    const populatedComment = await Comment.findById(comment._id).populate("author", "username");
+
     return res.status(201).json({
       success: true,
       message: "Comment created successfully.",
-      data: comment
+      data: populatedComment
     });
   } catch (error) {
     return res.status(500).json({

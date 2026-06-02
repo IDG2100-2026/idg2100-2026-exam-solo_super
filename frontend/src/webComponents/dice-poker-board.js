@@ -336,15 +336,24 @@ class DicePokerBoard extends HTMLElement {
   applyGameState(state) {
     if (!state) return;
 
-    this.round = state.round;
-    this.scores = state.scores;
-    this.currentPlayer = state.currentPlayer;
-    this.rollsLeft = state.rollsLeft;
-    this.held = state.held;
-    this.faces = state.faces;
-    this.player1Done = state.player1Done;
-    this.player2Done = state.player2Done;
-    this.matchOver = state.matchOver;
+    this.round = state.round || 1;
+    this.scores = state.scores || { player1: 0, player2: 0 };
+    this.currentPlayer = state.currentPlayer || "player1";
+    this.rollsLeft = state.rollsLeft || { player1: 3, player2: 3 };
+
+    this.held = state.held || {
+      player1: [false, false, false, false, false],
+      player2: [false, false, false, false, false],
+    };
+
+    this.faces = state.faces || {
+      player1: [],
+      player2: [],
+    };
+
+    this.player1Done = state.player1Done || false;
+    this.player2Done = state.player2Done || false;
+    this.matchOver = state.matchOver || false;
 
     this.render();
 

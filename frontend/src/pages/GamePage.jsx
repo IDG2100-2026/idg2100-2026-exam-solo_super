@@ -249,6 +249,8 @@ function GamePage() {
     boardElement.addEventListener("dp:round-decided", handleLiveBoardEvent);
 
     boardElement.addEventListener("dp:match-decided", handleMatchDecided);
+    boardElement.addEventListener("dp:die-held-changed", handleLiveBoardEvent);
+    
 
     // Cleanup: removes listener to avoid duplicate event handlers
     return () => {
@@ -257,6 +259,7 @@ function GamePage() {
       boardElement.removeEventListener("dp:roll-executed", handleLiveBoardEvent);
       boardElement.removeEventListener("dp:round-decided", handleLiveBoardEvent);
       boardElement.removeEventListener("dp:match-decided", handleMatchDecided);
+      boardElement.removeEventListener("dp:die-held-changed", handleLiveBoardEvent);
     };
   }, [match, id]);
 

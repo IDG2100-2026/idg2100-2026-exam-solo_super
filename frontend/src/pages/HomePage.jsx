@@ -18,15 +18,27 @@ function HomePage() {
   const [userId, setUserId] = useState(null);
   const [role, setRole] = useState("anonymous");
 
-  const lobbyPreviewCount =
-    Number(localStorage.getItem("homepageLobbyCount")) || 5;
+  const [lobbyPreviewCount, setLobbyPreviewCount] = useState(Number(localStorage.getItem("homepageLobbyCount")) || 5);
 
   useEffect(() => {
     fetchLobbyPreview();
     fetchRecentFinishedGames();
     fetchTournamentPreview();
   }, []);
+  
+  useEffect(() => {
+  const updateLobbyCount = () => {
+    setLobbyPreviewCount(
+      Number(localStorage.getItem("homepageLobbyCount")) || 5
+    );
+  };
 
+  window.addEventListener("settingsChanged", updateLobbyCount);
+
+  return () => {
+    window.removeEventListener("settingsChanged", updateLobbyCount);
+  };
+}, []);
   const fetchLobbyPreview = async () => {
     try {
       setLoadingLobby(true);

@@ -18,6 +18,7 @@ import TermsAndConditions from "./pages/TermsAndConditions";
 import NotFoundPage from "./pages/NotFoundPage";
 import { useEffect } from "react";
 import { playSound } from "./utils/soundManager";
+import AdminDashboard from "./pages/AdminDashboard";
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
         <Route path="/about-game" element={<AboutSpanishDice />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsAndConditions />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

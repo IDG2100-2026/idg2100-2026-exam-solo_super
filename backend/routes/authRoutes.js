@@ -22,6 +22,5 @@ router.post("/logout", logoutUser)
 // Current
 router.get("/me", verifyToken, getCurrentUser);
 
-//router.get("/admin/dashboard", verifyToken, isAdmin, getAdminDashboard);
 
 module.exports = router;

@@ -206,6 +206,8 @@ useEffect(() => {
       const updatedImageUrl = `http://localhost:5008${data.data.profileImage}?t=${Date.now()}`;
       setProfileImage(updatedImageUrl);
 
+      window.dispatchEvent(new Event("profileUpdated"));
+
       // Update local user state with new image path
       setUser((prev) => ({
         ...prev,
