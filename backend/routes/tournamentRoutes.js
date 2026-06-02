@@ -15,8 +15,6 @@ const {
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
-// create with admin acess
-router.post("/tournaments", verifyToken, isAdmin, createTournament );
 
 // Tournament
 router.get("/", getAllTournaments);

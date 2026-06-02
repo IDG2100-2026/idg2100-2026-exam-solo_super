@@ -21,6 +21,7 @@ function AdminCreateTournamentPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [trophyImage, setTrophyImage] = useState(null);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -47,29 +48,36 @@ function AdminCreateTournamentPage() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:5008/api/admin/tournaments", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+        const tournamentFormData = new FormData();
 
-      const data = await response.json();
+        Object.entries(formData).forEach(([key, value]) => {
+            tournamentFormData.append(key, value);
+        });
 
-      if (!response.ok) {
-        setError(data.message || "Failed to create tournament.");
-        return;
-      }
+        if (trophyImage) {
+            tournamentFormData.append("trophyImage", trophyImage);
+        }
 
-      navigate(`/tournaments/${data.data._id}`);
-    } catch (error) {
-      console.error("Create tournament error:", error);
-      setError("Could not connect to the server.");
-    } finally {
-      setLoading(false);
-    }
+        const response = await fetch("http://localhost:5008/api/admin/tournaments", {
+            method: "POST",
+            credentials: "include",
+            body: tournamentFormData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            setError(data.message || "Failed to create tournament.");
+            return;
+        }
+
+        navigate(`/tournaments/${data.data._id}`);
+        } catch (error) {
+        console.error("Create tournament error:", error);
+        setError("Could not connect to the server.");
+        } finally {
+        setLoading(false);
+        }
   };
 
   return (
@@ -108,16 +116,6 @@ function AdminCreateTournamentPage() {
             value={formData.startDate}
             onChange={handleChange}
             required
-          />
-        </label>
-
-        <label>
-          End Date
-          <input
-            type="datetime-local"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
           />
         </label>
 

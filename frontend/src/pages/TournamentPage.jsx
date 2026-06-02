@@ -12,8 +12,32 @@ function TournamentPage() {
   const [postingComment, setPostingComment] = useState(false);
   const [error, setError] = useState("");
 
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role") || "anonymous";
+  const [userId, setUserId] = useState(null);
+  const [role, setRole] = useState("anonymous");
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("http://localhost:5008/api/auth/me", {
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        setUserId(null);
+        setRole("anonymous");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUserId(data.data._id);
+        setRole(data.data.role || "user");
+      }
+    } catch {
+      setUserId(null);
+      setRole("anonymous");
+    }
+  };
 
   const fetchTournament = async () => {
     try {
@@ -53,6 +77,7 @@ function TournamentPage() {
 
   useEffect(() => {
     fetchTournament();
+    fetchCurrentUser();
     fetchComments();
   }, [id]);
 
@@ -160,49 +185,23 @@ function TournamentPage() {
 
   return (
     <main className="tournament-page">
-      <section className="tournament-detail-card">
-        <section>
-        <h1>{tournament?.title}</h1>
-        <p>{tournament?.description}</p>
-
-        <p>
-          <strong>Date/Time:</strong>{" "}
-          {tournament?.startDate
-            ? new Date(tournament.startDate).toLocaleString()
-            : "Not set"}
-        </p>
-
-        <p>
-          <strong>Format:</strong>{" "}
-          Best of {tournament?.bestOf} ·{" "}
-          {tournament?.straightsAllowed ? "Straights allowed" : "Straights off"} ·{" "}
-          {tournament?.roundTimeSeconds}s
-        </p>
-       
-        
-
-        <p>
-          <strong>Category Key:</strong> {tournament?.categoryKey}
-        </p>
-
-        <p>
-          <strong>Status:</strong> {tournament?.status}
-        </p>
-
-        <p>
-          <strong>Players:</strong>{" "}
-          {tournament?.participants?.length || 0}/{tournament?.maxPlayers}
-        </p>
-         </section>
-        <section>
+      <section>
 
         <div className="tournament-trophy-box">
           <h2>Trophy</h2>
-          <p><strong>{tournament?.trophy?.title || "No trophy title"}</strong></p>
+
+          <p>
+            <strong>{tournament?.trophy?.title || "No trophy title"}</strong>
+          </p>
+
           {tournament?.trophy?.imageUrl ? (
             <img
-              src={`http://localhost:5008${tournament.trophy.imageUrl}`}
-              alt={tournament.trophy.title}
+              src={
+                tournament.trophy.imageUrl.startsWith("http")
+                  ? tournament.trophy.imageUrl
+                  : `http://localhost:5008${tournament.trophy.imageUrl}`
+              }
+              alt={tournament.trophy?.title || "Tournament trophy"}
               className="tournament-trophy-image"
             />
           ) : (
@@ -210,6 +209,35 @@ function TournamentPage() {
           )}
         </div>
         </section>
+      <section className="tournament-detail-card">
+        <p><strong>Status:</strong> {tournament?.status}</p>
+
+        <p>
+          <strong>Date:</strong>{" "}
+          {tournament?.startDate
+            ? new Date(tournament.startDate).toLocaleString()
+            : "Not set"}
+        </p>
+
+        <p>
+          <strong>Rules:</strong> Best of {tournament?.bestOf},{" "}
+          {tournament?.straightsAllowed ? "straights allowed" : "straights off"},{" "}
+          {tournament?.roundTimeSeconds}s rounds
+        </p>
+
+        <p>
+          <strong>Players:</strong>{" "}
+          {tournament?.participants?.length || 0}/{tournament?.maxPlayers}
+        </p>
+
+        <p>
+          <strong>Minimum players:</strong> {tournament?.minPlayers}
+        </p>
+
+        <p>
+          <strong>Created by:</strong>{" "}
+          {tournament?.createdBy?.username || "Unknown"}
+        </p>
 
         {error && <p className="form-error">{error}</p>}
 
