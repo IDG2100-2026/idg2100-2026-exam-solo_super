@@ -408,6 +408,40 @@ const startTournament = async (req, res) => {
   }
 };
 
+const leaveTournament = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    const tournament = await Tournament.findById(req.params.id);
+
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: "Tournament not found.",
+      });
+    }
+
+    tournament.participants = tournament.participants.filter(
+      (participant) =>
+        participant.user?.toString() !== userId.toString()
+    );
+
+    await tournament.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Left tournament successfully.",
+      data: tournament,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to leave tournament.",
+      error: error.message,
+    });
+  }
+};
+
 const progressTournament = async (req, res) => {
   try {
     const { id } = req.params;
@@ -523,5 +557,6 @@ module.exports = {
   cancelTournament,
   joinTournament,
   startTournament,
+  leaveTournament,
   progressTournament
 };

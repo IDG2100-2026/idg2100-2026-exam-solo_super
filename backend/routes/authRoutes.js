@@ -7,6 +7,8 @@ const {
   loginUser,
   verifyEmail,
   logoutUser,
+  forgotPassword,
+  resetPassword,
   getCurrentUser
 } = require("../controllers/authController");
 
@@ -23,6 +25,9 @@ router.post("/logout", logoutUser)
 
 // Current
 router.get("/me", verifyToken, getCurrentUser);
+
+router.post("/forgot-password", forgotPassword);
+router.patch("/reset-password/:token", resetPassword);
 
 
 

@@ -24,6 +24,8 @@ import AdminCommentsPage from "./pages/AdminCommentsPage";
 import AdminCreateTournamentPage from "./pages/AdminCreateTournamentPage";
 import AdminTournamentListPage from "./pages/AdminTournamentListPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 
 function App() {
@@ -68,6 +70,8 @@ function App() {
         <Route path="/admin/tournaments/create" element={<AdminCreateTournamentPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

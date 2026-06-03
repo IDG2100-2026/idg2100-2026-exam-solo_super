@@ -15,6 +15,9 @@ const userRoutes = require("./routes/userRoutes");
 const gameRoutes = require("./routes/gameRoutes");
 const tournamentRoutes = require("./routes/tournamentRoutes");
 
+const apiLimiter = require("./middleware/apiLimiter");
+
+
 
 // env load
 dotenv.config();
@@ -31,6 +34,7 @@ app.use(cors({
   credentials: true
 }));
 
+app.use("/api", apiLimiter);
 
 //middleware
 app.use(express.json());

@@ -8,6 +8,7 @@ const {
   getAllTournaments,
   getTournamentById,
   joinTournament,
+  leaveTournament,
   startTournament,
   progressTournament
 } = require("../controllers/tournamentController");
@@ -26,5 +27,7 @@ router.patch("/:id/join", authMiddleware, joinTournament);
 // Admin tournament management
 router.patch("/:id/start", authMiddleware, adminMiddleware, startTournament);
 router.patch("/:id/progress", authMiddleware, adminMiddleware, progressTournament);
+
+router.patch("/:id/leave", verifyToken, leaveTournament);
 
 module.exports = router;

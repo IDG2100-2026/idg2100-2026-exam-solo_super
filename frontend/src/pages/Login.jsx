@@ -104,9 +104,8 @@ function Login() {
           </button>
         </form>
 
-        <button type="button" className="secondary-link-button">
-          Forgot password?
-        </button>
+        <Link to="/forgot-password"><button type="button" className="secondary-link-button">Forgot password?</button></Link>
+        
 
         <p className="auth-switch">
           Don’t have an account? <Link to="/register">Register here</Link>

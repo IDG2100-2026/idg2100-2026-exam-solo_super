@@ -626,3 +626,9 @@ td>*{
 .admin-search, .tournament-link-button{
   margin-left:10px;
 }
+.admin-link-card{
+  margin: 10px;
+}
+.admin-button-cards{
+  margin-top: 10%;
+}

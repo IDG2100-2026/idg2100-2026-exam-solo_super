@@ -2,6 +2,7 @@ const User = require("../models/userSchema");
 const Comment = require("../models/commentSchema");
 const Match = require("../models/matchSchema");
 const Tournament = require("../models/tournamentSchema");
+const SecurityIncident = require("../models/securityIncidentSchema");
 
 const getAdminDashboard = async (req, res) => {
   try {
@@ -10,6 +11,11 @@ const getAdminDashboard = async (req, res) => {
     const totalMatches = await Match.countDocuments();
     const totalTournaments = await Tournament.countDocuments();
 
+    const securityIncidents = await SecurityIncident.find()
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .populate("userId", "username email");
+
     return res.status(200).json({
       success: true,
       data: {
@@ -17,6 +23,7 @@ const getAdminDashboard = async (req, res) => {
         totalComments,
         totalMatches,
         totalTournaments,
+        securityIncidents,
       },
     });
   } catch (error) {
