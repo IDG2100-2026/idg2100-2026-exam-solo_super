@@ -120,9 +120,8 @@ function Header() {
             <Link to="/admin" className="nav-link">Dashboard</Link>
             <Link to="/admin/users" className="nav-link">Users</Link>
             <Link to="/admin/comments" className="nav-link">Comments</Link>
-            <Link to="/admin/tournaments/create" className="nav-link">
-              Create Tournament
-            </Link>
+            <Link to="/admin/tournaments/create" className="nav-link">Create Tournament</Link>
+            <Link to="/admin/tournaments" className="nav-link">Edit Tournaments</Link>
           </nav>
 
           <button onClick={handleLogout} className="nav-button">Logout</button>

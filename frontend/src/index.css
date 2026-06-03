@@ -614,3 +614,15 @@ button {
   display: grid;
   grid-template-columns: 1fr;
 }
+table{
+  border-spacing: 8px;
+}
+th,td{
+  padding: 5px;
+}
+td>*{
+  margin: 3px;
+}
+.admin-search, .tournament-link-button{
+  margin-left:10px;
+}

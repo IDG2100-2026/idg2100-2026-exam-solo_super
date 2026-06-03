@@ -3,7 +3,13 @@ const verifyToken = require("../middleware/verifyToken");
 const isAdmin = require("../middleware/isAdmin");
 const multer = require("multer");
 const path = require("path");
-const { createTournament } = require("../controllers/tournamentController");
+
+const {
+  createTournament,
+  getAllTournaments,
+  deleteTournament,
+  cancelTournament,
+} = require("../controllers/tournamentController");
 
 const {
   getAdminDashboard,
@@ -26,6 +32,7 @@ const trophyStorage = multer.diskStorage({
   },
 });
 
+
 const upload = multer({ storage: trophyStorage });
 
 router.get("/dashboard", verifyToken, isAdmin, getAdminDashboard);
@@ -39,6 +46,12 @@ router.get("/comments", verifyToken, isAdmin, getAdminComments);
 router.delete("/comments/:id", verifyToken, isAdmin, deleteAdminComment);
 
 router.post("/tournaments", verifyToken, isAdmin, upload.single("trophyImage"), createTournament);
+
+router.get("/tournaments", verifyToken, isAdmin, getAllTournaments);
+
+router.patch("/tournaments/:id/cancel", verifyToken, isAdmin,cancelTournament);
+
+router.delete("/tournaments/:id", verifyToken, isAdmin, deleteTournament);
 
 
 module.exports = router;

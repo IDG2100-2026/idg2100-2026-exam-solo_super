@@ -22,6 +22,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminCommentsPage from "./pages/AdminCommentsPage";
 import AdminCreateTournamentPage from "./pages/AdminCreateTournamentPage";
+import AdminTournamentListPage from "./pages/AdminTournamentListPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 
@@ -66,6 +67,9 @@ function App() {
         <Route path="/admin/comments" element={<AdminCommentsPage />} />
         <Route path="/admin/tournaments/create" element={<AdminCreateTournamentPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+        <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
+        <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
+        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

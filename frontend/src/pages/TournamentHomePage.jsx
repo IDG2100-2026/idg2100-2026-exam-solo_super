@@ -32,6 +32,17 @@ function TournamentHomePage() {
     fetchTournaments();
   }, []);
 
+    const now = new Date();
+    const upcomingTournaments = tournaments.filter((tournament) => {
+      if (!tournament.startDate) return false;
+
+      return (
+        new Date(tournament.startDate) >= now &&
+        tournament.status !== "cancelled" &&
+        tournament.status !== "finished"
+      );
+    });
+
   if (loading) {
     return (
       <main className="tournament-list-page">
@@ -50,13 +61,13 @@ function TournamentHomePage() {
 
       {error && <p className="form-error">{error}</p>}
 
-      {tournaments.length === 0 ? (
+      {upcomingTournaments.length === 0 ? (
         <section className="tournament-empty">
           <p>No tournaments available right now.</p>
         </section>
       ) : (
         <section className="tournament-grid">
-          {tournaments.map((tournament) => (
+          {upcomingTournaments.map((tournament) => (
             <article key={tournament._id} className="tournament-card">
               <h2>{tournament.title}</h2>
 

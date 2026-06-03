@@ -36,7 +36,7 @@ const createTournament = async (req, res) => {
     const trophyTitle = req.body.trophyTitle?.trim() || "";
     const trophyImageUrl =
       req.file
-        ? `/uploads/trophies/${req.file.filename}`
+        ? `/uploads/trophy-images/${req.file.filename}`
         : req.body.trophyImageUrl || "";
 
     const participants = Array.isArray(req.body.participants)
@@ -179,6 +179,62 @@ const getAllTournaments = async (req, res) => {
       success: false,
       message: "Failed to retrieve tournaments.",
       error: error.message
+    });
+  }
+};
+
+const deleteTournament = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedTournament = await Tournament.findByIdAndDelete(id);
+
+    if (!deletedTournament) {
+      return res.status(404).json({
+        success: false,
+        message: "Tournament not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Tournament deleted successfully.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete tournament.",
+      error: error.message,
+    });
+  }
+};
+
+const cancelTournament = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const tournament = await Tournament.findById(id);
+
+    if (!tournament) {
+      return res.status(404).json({
+        success: false,
+        message: "Tournament not found.",
+      });
+    }
+
+    tournament.status = "cancelled";
+    await tournament.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Tournament cancelled successfully.",
+      data: tournament,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to cancel tournament.",
+      error: error.message,
     });
   }
 };
@@ -463,6 +519,8 @@ module.exports = {
   createTournament,
   getAllTournaments,
   getTournamentById,
+  deleteTournament,
+  cancelTournament,
   joinTournament,
   startTournament,
   progressTournament
