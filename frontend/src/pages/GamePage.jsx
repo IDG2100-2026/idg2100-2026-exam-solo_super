@@ -407,7 +407,24 @@ function GamePage() {
       {isFinished ? (
         <section className="finished-card">
           <h2>Match Finished</h2>
-          <p>{match.finalOutcome || "This match has already been completed."}</p>
+
+          <p>
+            {match.finalOutcome ||
+              "This match has already been completed."}
+          </p>
+
+          {match?.tournament && (
+            <button
+              type="button"
+              onClick={() =>
+                (window.location.href = `/tournaments/${
+                  match.tournament._id || match.tournament
+                }/play`)
+              }
+            >
+              Back to Tournament Room
+            </button>
+          )}
         </section>
       ) : !canStart ? (
         <section className="waiting-card">
@@ -425,6 +442,7 @@ function GamePage() {
             bestof={String(match.bestOf)}
             include-straight={String(match.straightsAllowed)}
             current-user-player={currentUserPlayer}
+            tournament-match={match?.tournament ? "true" : "false"}
           ></dice-poker-board>
         </section>
       )}

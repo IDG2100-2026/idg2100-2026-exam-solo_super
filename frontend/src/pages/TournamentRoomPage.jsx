@@ -146,10 +146,6 @@ function TournamentRoomPage() {
           <p>No matches for this round yet.</p>
         )}
 
-        <details open>
-            <summary>Debug tournament</summary>
-            <pre>{JSON.stringify(tournament, null, 2)}</pre>
-            </details>
       </section>
 
       <section className="tournament-detail-card">

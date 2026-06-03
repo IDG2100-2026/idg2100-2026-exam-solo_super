@@ -6,6 +6,8 @@ const fs = require("fs");
 // image processing (resize/compress)
 const sharp = require("sharp"); 
 
+const Tournament = require("../models/tournamentSchema");
+
 
 const getAllUsers = async (req, res) => {
   try {
@@ -87,37 +89,52 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    //find user
+
     const user = await User.findById(id).select("-password");
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found."
+        message: "User not found.",
       });
     }
 
-    // only the user or admin can view
     const isOwner = req.user && req.user.userId === user._id.toString();
     const isAdmin = req.user && req.user.role === "admin";
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({
         success: false,
-        message: "Access denied."
+        message: "Access denied.",
       });
     }
+
+    const wonTournaments = await Tournament.find({ winner: user._id })
+      .select("title trophy endDate")
+      .sort({ endDate: -1 });
+
+    const trophies = wonTournaments.map((tournament) => ({
+      title: tournament.trophy?.title || tournament.title,
+      imageUrl: tournament.trophy?.imageUrl || "",
+      awardedAt: tournament.endDate,
+      tournamentId: tournament._id,
+    }));
+
+    const userObject = user.toObject();
 
     return res.status(200).json({
       success: true,
       message: "User retrieved successfully.",
-      data: user
+      data: {
+        ...userObject,
+        trophies,
+      },
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Failed to retrieve user.",
-      error: error.message
+      error: error.message,
     });
   }
 };

@@ -197,6 +197,98 @@ const joinMatch = async (req, res) => {
   }
 };
 
+const createTournamentMatchesForCurrentRound = async (tournament) => {
+  const currentRound = tournament.rounds.find(
+    (round) => Number(round.roundNumber) === Number(tournament.currentRound)
+  );
+
+  if (!currentRound) return;
+
+  for (const roundMatch of currentRound.matches) {
+    if (roundMatch.status === "bye") continue;
+    if (roundMatch.matchId) continue;
+    if (!roundMatch.playerOne || !roundMatch.playerTwo) continue;
+
+    const match = await Match.create({
+      players: [
+        { user: roundMatch.playerOne, usernameSnapshot: "" },
+        { user: roundMatch.playerTwo, usernameSnapshot: "" },
+      ],
+      anonymousPlayers: 0,
+      isAnonymousMatch: false,
+      bestOf: tournament.bestOf,
+      straightsAllowed: tournament.straightsAllowed,
+      roundTimeSeconds: tournament.roundTimeSeconds,
+      categoryKey: tournament.categoryKey,
+      status: "ongoing",
+      startedAt: new Date(),
+      tournament: tournament._id,
+      tournamentRoundNumber: tournament.currentRound,
+    });
+
+    roundMatch.matchId = match._id;
+    roundMatch.status = "ongoing";
+  }
+};
+
+const getObjectId = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (value._id) return value._id.toString();
+  return value.toString();
+};
+
+const updateTournamentAfterMatch = async (match) => {
+  if (!match.tournament) return;
+
+  const tournament = await Tournament.findById(match.tournament);
+  if (!tournament) return;
+
+  const round = tournament.rounds.find(
+    (round) => Number(round.roundNumber) === Number(match.tournamentRoundNumber)
+  );
+
+  if (!round) return;
+
+  const tournamentMatch = round.matches.find(
+    (item) => getObjectId(item.matchId) === match._id.toString()
+  );
+
+  if (!tournamentMatch || tournamentMatch.status === "finished") return;
+
+  tournamentMatch.status = "finished";
+  tournamentMatch.winner = match.winnerUser;
+
+  const standing = tournament.standings.find(
+    (item) => getObjectId(item.user) === getObjectId(match.winnerUser)
+);
+
+  if (standing) {
+    standing.points += 1;
+  }
+
+  const allRoundMatchesFinished = round.matches.every(
+    (item) => item.status === "finished" || item.status === "bye"
+  );
+
+  if (allRoundMatchesFinished) {
+    if (Number(tournament.currentRound) >= Number(tournament.totalRounds)) {
+      const sortedStandings = [...tournament.standings].sort(
+        (a, b) => b.points - a.points
+      );
+
+      tournament.status = "finished";
+      tournament.winner = sortedStandings[0]?.user || null;
+      tournament.endDate = new Date();
+    } else {
+      tournament.currentRound += 1;
+      await createTournamentMatchesForCurrentRound(tournament);
+    }
+  }
+
+  await tournament.save();
+};
+
 // results
 const submitMatchResult = async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 class DicePokerBoard extends HTMLElement {
   static get observedAttributes() {
-    return ['player1', 'player2', 'bestof', 'include-straight', 'current-user-player'];
+    return ['player1', 'player2', 'bestof', 'include-straight', 'current-user-player', 'tournament-match'];
   }
 
   constructor() {
@@ -29,6 +29,7 @@ class DicePokerBoard extends HTMLElement {
   get includeStraight() { return this.getAttribute('include-straight') !== 'false'; }
   get winsNeeded() { return Math.ceil(this.bestof / 2); }
   get currentUserPlayer() {return this.getAttribute('current-user-player') || 'spectator';}
+  get isTournamentMatch() {return this.getAttribute("tournament-match") === "true";}
 
   evaluateHand(faces) {
     const faceOrder = ['7', '8', 'J', 'Q', 'K', 'A'];
@@ -223,28 +224,48 @@ class DicePokerBoard extends HTMLElement {
   }
 
   showRoundResult(breakdown, hand1, hand2, winner) {
-    const resultDiv = this.shadowRoot.querySelector('.round-result');
+    const resultDiv = this.shadowRoot.querySelector(".round-result");
     if (!resultDiv) return;
-    resultDiv.style.display = 'block';
+
+    resultDiv.style.display = "block";
     resultDiv.innerHTML = `
       <strong>${breakdown}</strong><br>
-      ${this.p1Name}: ${hand1.name} (${this.faces.player1.join(', ')})<br>
-      ${this.p2Name}: ${hand2.name} (${this.faces.player2.join(', ')})
+      ${this.p1Name}: ${hand1.name} (${this.faces.player1.join(", ")})<br>
+      ${this.p2Name}: ${hand2.name} (${this.faces.player2.join(", ")})
     `;
 
+    const nextBtn = this.shadowRoot.querySelector("#next-round-btn");
+
     if (this.matchOver) {
-      const champion = this.scores.player1 >= this.winsNeeded ? 'player1' : 'player2';
-      resultDiv.innerHTML += `<br><br><strong>🏆 ${this.getPlayerName(champion)} wins the match ${this.scores.player1}-${this.scores.player2}!</strong>`;
-      const nextBtn = this.shadowRoot.querySelector('#next-round-btn');
-      if (nextBtn) nextBtn.textContent = 'Restart Match';
+      const champion =
+        this.scores.player1 >= this.winsNeeded ? "player1" : "player2";
+
+      resultDiv.innerHTML += `
+        <br><br>
+        <strong>🏆 ${this.getPlayerName(champion)} wins the match ${this.scores.player1}-${this.scores.player2}!</strong>
+      `;
+
+      if (nextBtn) {
+        if (this.isTournamentMatch) {
+          nextBtn.style.display = "none";
+        } else {
+          nextBtn.textContent = "Restart Match";
+          nextBtn.style.display = "inline-block";
+        }
+      }
+
+      return;
     }
 
-    const nextBtn = this.shadowRoot.querySelector('#next-round-btn');
-    if (nextBtn) nextBtn.style.display = 'inline-block';
+    if (nextBtn) {
+      nextBtn.textContent = "Start Next Round";
+      nextBtn.style.display = "inline-block";
+    }
 
-    const rollBtn = this.shadowRoot.querySelector('#roll-btn');
-    if (rollBtn) rollBtn.style.display = 'none';
+    const rollBtn = this.shadowRoot.querySelector("#roll-btn");
+    if (rollBtn) rollBtn.style.display = "none";
   }
+  
 
   updateControls() {
     const rollBtn = this.shadowRoot.querySelector('#roll-btn');

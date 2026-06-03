@@ -433,18 +433,37 @@ useEffect(() => {
         {/* Trophies awarded from tournaments */}
         <section className="profile-section">
           <h2>Trophies</h2>
+
           {user?.trophies?.length > 0 ? (
             <div className="trophy-grid">
-              {user.trophies.map((trophy, index) => (
-                <div key={index} className="trophy-card">
-                  <p><strong>{trophy.title}</strong></p>
-                  <p>
-                    {trophy.awardedAt
-                      ? new Date(trophy.awardedAt).toLocaleDateString()
-                      : ""}
-                  </p>
-                </div>
-              ))}
+              {user.trophies.map((trophy, index) => {
+                const trophyImage =
+                  trophy.imageUrl || trophy.trophy?.imageUrl || "";
+
+                return (
+                  <div key={index} className="trophy-card">
+                    {trophyImage && (
+                      <img
+                        src={
+                          trophyImage.startsWith("http")
+                            ? trophyImage
+                            : `http://localhost:5008${trophyImage}`
+                        }
+                        alt={trophy.title || "Tournament trophy"}
+                        className="profile-trophy-image"
+                      />
+                    )}
+
+                    <p><strong>{trophy.title}</strong></p>
+
+                    <p>
+                      {trophy.awardedAt
+                        ? new Date(trophy.awardedAt).toLocaleDateString()
+                        : ""}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p>No trophies yet.</p>
