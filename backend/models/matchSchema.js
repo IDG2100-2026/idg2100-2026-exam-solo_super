@@ -42,7 +42,9 @@ const matchSchema = new mongoose.Schema(
     startedAt: {type: Date, default: null},
     finishedAt: {type: Date, default: null}, 
     creatorElo: {type: Number, default: 1200},
-    eloPreference: {type: String, enum: ["any", "higher", "lower", "similar"], default: "any"}
+    eloPreference: {type: String, enum: ["any", "higher", "lower", "similar"], default: "any"}, 
+    tournament: {type: mongoose.Schema.Types.ObjectId, ref: "Tournament", default: null},
+    tournamentRoundNumber: {type: Number,default: null},
   },
   {
     timestamps: true

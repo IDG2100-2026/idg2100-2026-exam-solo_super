@@ -219,7 +219,6 @@ function GamePage() {
         }
 
         setResultMessage("Match result saved successfully.");
-        playSound("/sounds/victory.mp3");
 
     //Reload
         await fetchMatch();

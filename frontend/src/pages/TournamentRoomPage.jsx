@@ -11,28 +11,40 @@ function TournamentRoomPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchCurrentUser = async () => {
-    const response = await fetch("http://localhost:5008/api/auth/me", {
-      credentials: "include",
-    });
+    try {
+      const response = await fetch("http://localhost:5008/api/auth/me", {
+        credentials: "include",
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        setCurrentUserId(null);
+        return;
+      }
+
       const data = await response.json();
       setCurrentUserId(data.data._id);
+    } catch (error) {
+      setCurrentUserId(null);
     }
   };
 
   const fetchTournament = async () => {
-    const response = await fetch(`http://localhost:5008/api/tournaments/${id}`);
-    const data = await response.json();
+    try {
+      const response = await fetch(`http://localhost:5008/api/tournaments/${id}`);
+      const data = await response.json();
 
-    if (!response.ok) {
-      setError(data.message || "Failed to load tournament room.");
+      if (!response.ok) {
+        setError(data.message || "Failed to load tournament room.");
+        return;
+      }
+
+      setTournament(data.data);
+    } catch (error) {
+      console.error("Tournament room fetch error:", error);
+      setError("Could not connect to the server.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setTournament(data.data);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -48,18 +60,29 @@ function TournamentRoomPage() {
     );
   }
 
+  const activeRoundNumber = tournament?.currentRound || 1;
+
     const currentRound = tournament?.rounds?.find(
-        (round) => round.roundNumber === tournament.currentRound
+    (round) => Number(round.roundNumber) === Number(activeRoundNumber)
     );
 
-    const myMatch = currentRound?.matches?.find((match) => {
-    const playerOneId = match.playerOne?._id || match.playerOne;
-    const playerTwoId = match.playerTwo?._id || match.playerTwo;
+  const getId = (value) => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    return value._id || "";
+  };
 
-    return playerOneId === currentUserId || playerTwoId === currentUserId;
-    });
+  const myMatch = currentRound?.matches?.find((match) => {
+    const playerOneId = getId(match.playerOne);
+    const playerTwoId = getId(match.playerTwo);
 
-    const myMatchId = myMatch?.matchId?._id || myMatch?.matchId;
+    return (
+      String(playerOneId) === String(currentUserId) ||
+      String(playerTwoId) === String(currentUserId)
+    );
+  });
+
+  const myMatchId = getId(myMatch?.matchId);
 
   return (
     <main className="tournament-page">
@@ -77,14 +100,16 @@ function TournamentRoomPage() {
           {tournament?.currentRound || 0}/{tournament?.totalRounds || 0}
         </p>
 
-        {myMatchId && (
-            <button
-                type="button"
-                onClick={() => navigate(`/games/${myMatchId}`)}
-            >
-                Go to Your Match
-            </button>
-            )}
+        {myMatchId ? (
+          <button
+            type="button"
+            onClick={() => navigate(`/games/${myMatchId}`)}
+          >
+            Go to Your Match
+          </button>
+        ) : (
+          <p>No assigned match for you in this round.</p>
+        )}
       </section>
 
       <section className="tournament-detail-card">
@@ -92,30 +117,39 @@ function TournamentRoomPage() {
 
         {currentRound?.matches?.length > 0 ? (
           <ul>
-            {currentRound.matches.map((match, index) => (
-              <li key={index}>
-                {match.status === "bye" ? (
-                  <>
-                    Bye: {match.playerOne?.username || "Player"}
-                  </>
-                ) : (
-                  <>
-                    {match.playerOne?.username || "Player 1"} vs{" "}
-                    {match.playerTwo?.username || "Player 2"} — {match.status}{" "}
+            {currentRound.matches.map((match, index) => {
+              const matchId = getId(match.matchId);
 
-                    {match.matchId && (
-                      <Link to={`/games/${match.matchId._id || match.matchId}`}>
-                        View Game
-                      </Link>
-                    )}
-                  </>
-                )}
-              </li>
-            ))}
+              return (
+                <li key={index}>
+                  {match.status === "bye" ? (
+                    <>
+                      Bye: {match.playerOne?.username || "Player"}
+                    </>
+                  ) : (
+                    <>
+                      {match.playerOne?.username || "Player 1"} vs{" "}
+                      {match.playerTwo?.username || "Player 2"} — {match.status}{" "}
+
+                      {matchId && (
+                        <Link to={`/games/${matchId}`}>
+                          View Game
+                        </Link>
+                      )}
+                    </>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p>No matches for this round yet.</p>
         )}
+
+        <details open>
+            <summary>Debug tournament</summary>
+            <pre>{JSON.stringify(tournament, null, 2)}</pre>
+            </details>
       </section>
 
       <section className="tournament-detail-card">
@@ -126,7 +160,7 @@ function TournamentRoomPage() {
             {[...tournament.standings]
               .sort((a, b) => b.points - a.points)
               .map((standing) => (
-                <li key={standing.user?._id || standing.user}>
+                <li key={getId(standing.user)}>
                   {standing.user?.username || "Player"} — {standing.points} pts
                 </li>
               ))}

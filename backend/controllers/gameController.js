@@ -206,7 +206,7 @@ const submitMatchResult = async (req, res) => {
       winnerAnonymous = false,
       rounds,
       finalOutcome,
-      comments
+      comments,
     } = req.body;
 
     const match = await Match.findById(id);
@@ -214,14 +214,14 @@ const submitMatchResult = async (req, res) => {
     if (!match) {
       return res.status(404).json({
         success: false,
-        message: "Match not found."
+        message: "Match not found.",
       });
     }
 
     if (match.status === "finished") {
       return res.status(400).json({
         success: false,
-        message: "Result has already been submitted for this match."
+        message: "Result has already been submitted for this match.",
       });
     }
 
@@ -236,18 +236,19 @@ const submitMatchResult = async (req, res) => {
       match.winnerUser = null;
 
       await match.save();
+      await updateTournamentAfterMatch(match);
 
       return res.status(200).json({
         success: true,
         message: "Anonymous match result saved successfully.",
-        data: match
+        data: match,
       });
     }
 
     if (!winnerUserId) {
       return res.status(400).json({
         success: false,
-        message: "winnerUserId is required for registered matches."
+        message: "winnerUserId is required for registered matches.",
       });
     }
 
@@ -268,6 +269,7 @@ const submitMatchResult = async (req, res) => {
       for (const player of registeredPlayers) {
         if (player.user.toString() !== winnerUserId) {
           const loser = await User.findById(player.user);
+
           if (loser) {
             loser.matchesPlayed = (loser.matchesPlayed || 0) + 1;
             await loser.save();
@@ -276,11 +278,12 @@ const submitMatchResult = async (req, res) => {
       }
 
       await match.save();
+      await updateTournamentAfterMatch(match);
 
       return res.status(200).json({
         success: true,
         message: "Match result saved successfully.",
-        data: match
+        data: match,
       });
     }
 
@@ -293,7 +296,7 @@ const submitMatchResult = async (req, res) => {
     if (!winnerPlayer || !loserMatchPlayer) {
       return res.status(400).json({
         success: false,
-        message: "Could not determine winner and loser correctly."
+        message: "Could not determine winner and loser correctly.",
       });
     }
 
@@ -302,7 +305,7 @@ const submitMatchResult = async (req, res) => {
     if (!loserPlayer) {
       return res.status(400).json({
         success: false,
-        message: "Loser could not be found."
+        message: "Loser could not be found.",
       });
     }
 
@@ -322,6 +325,7 @@ const submitMatchResult = async (req, res) => {
     await winnerPlayer.save();
     await loserPlayer.save();
     await match.save();
+    await updateTournamentAfterMatch(match);
 
     return res.status(200).json({
       success: true,
@@ -332,21 +336,21 @@ const submitMatchResult = async (req, res) => {
           userId: winnerPlayer._id,
           username: winnerPlayer.username,
           oldRating: winnerOldRating,
-          newRating: winnerNewRating
+          newRating: winnerNewRating,
         },
         loser: {
           userId: loserPlayer._id,
           username: loserPlayer.username,
           oldRating: loserOldRating,
-          newRating: loserNewRating
-        }
-      }
+          newRating: loserNewRating,
+        },
+      },
     });
   } catch (error) {
     return res.status(500).json({
       success: false,
       message: "Failed to save match result.",
-      error: error.message
+      error: error.message,
     });
   }
 };

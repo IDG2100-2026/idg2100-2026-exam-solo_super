@@ -173,46 +173,54 @@ const createTournament = async (req, res) => {
   };
 
  const createMatchesForCurrentRound = async (tournament) => {
-  const currentRound = tournament.rounds.find(
-    (round) => round.roundNumber === tournament.currentRound
-  );
+    const currentRound = tournament.rounds.find(
+      (round) => Number(round.roundNumber) === Number(tournament.currentRound)
+    );
 
-  if (!currentRound) return;
+    if (!currentRound) return;
 
-  for (const roundMatch of currentRound.matches) {
-    if (roundMatch.status === "bye") continue;
-    if (roundMatch.matchId) continue;
-    if (!roundMatch.playerOne || !roundMatch.playerTwo) continue;
+    for (const roundMatch of currentRound.matches) {
+      if (roundMatch.status === "bye") continue;
+      if (roundMatch.matchId) continue;
+      if (!roundMatch.playerOne || !roundMatch.playerTwo) continue;
 
-    const match = await Match.create({
-      players: [
-        {
-          user: roundMatch.playerOne,
-          usernameSnapshot: "",
-        },
-        {
-          user: roundMatch.playerTwo,
-          usernameSnapshot: "",
-        },
-      ],
-      anonymousPlayers: 0,
-      isAnonymousMatch: false,
-      bestOf: tournament.bestOf,
-      straightsAllowed: tournament.straightsAllowed,
-      roundTimeSeconds: tournament.roundTimeSeconds,
-      categoryKey:
-        tournament.categoryKey ||
-        `bestOf${tournament.bestOf}_straights${
-          tournament.straightsAllowed ? "On" : "Off"
-        }_${tournament.roundTimeSeconds}s`,
-      status: "ongoing",
-      startedAt: new Date(),
-    });
+      const match = await Match.create({
+        players: [
+          {
+            user: roundMatch.playerOne,
+            usernameSnapshot: "",
+          },
+          {
+            user: roundMatch.playerTwo,
+            usernameSnapshot: "",
+          },
+        ],
 
-    roundMatch.matchId = match._id;
-    roundMatch.status = "ongoing";
-  }
-};
+        anonymousPlayers: 0,
+        isAnonymousMatch: false,
+
+        bestOf: tournament.bestOf,
+        straightsAllowed: tournament.straightsAllowed,
+        roundTimeSeconds: tournament.roundTimeSeconds,
+
+        categoryKey:
+          tournament.categoryKey ||
+          `bestOf${tournament.bestOf}_straights${
+            tournament.straightsAllowed ? "On" : "Off"
+          }_${tournament.roundTimeSeconds}s`,
+
+        status: "ongoing",
+        startedAt: new Date(),
+
+        // important tournament link
+        tournament: tournament._id,
+        tournamentRoundNumber: tournament.currentRound,
+      });
+
+      roundMatch.matchId = match._id;
+      roundMatch.status = "ongoing";
+    }
+  };
 
 const getAllTournaments = async (req, res) => {
   try {
