@@ -15,7 +15,9 @@ const tournamentMatchSchema = new mongoose.Schema(
     playerOne: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     playerTwo: {type: mongoose.Schema.Types.ObjectId, ref: "User", default: null},
     winner: {type: mongoose.Schema.Types.ObjectId, ref: "User", default: null},
-    status: {type: String, enum: ["scheduled", "finished", "bye"], default: "scheduled"}
+    status: {type: String, enum: ["scheduled", "ongoing", "finished", "bye"], default: "scheduled"},
+    matchId: {type: mongoose.Schema.Types.ObjectId, ref: "Match", default: null,
+},
   },
   { _id: false }
 );
@@ -58,7 +60,18 @@ const tournamentSchema = new mongoose.Schema(
     rounds: {type: [tournamentRoundSchema], default: []},
     status: {type: String, enum: ["open", "scheduled", "ongoing", "finished", "cancelled"], default: "open"},
     trophy: {type: trophySchema},
-    winner: {type: mongoose.Schema.Types.ObjectId, ref: "User", default: null
+    winner: {type: mongoose.Schema.Types.ObjectId, ref: "User", default: null,
+    currentRound: {type: Number, default: 0},
+    totalRounds: {type: Number, default: 0},
+    standings: {
+      type: [{
+        user: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
+        points: {type: Number, default: 0,},
+    },
+
+  ],
+  default: [],
+},
     }
   },
   {

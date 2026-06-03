@@ -26,6 +26,7 @@ import AdminTournamentListPage from "./pages/AdminTournamentListPage";
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import TournamentRoomPage from "./pages/TournamentRoomPage";
 
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
         <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/tournaments/:id/play" element={<TournamentRoomPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>

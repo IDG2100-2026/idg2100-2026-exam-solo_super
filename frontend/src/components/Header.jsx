@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useEffect, useState } from "react";
-import { playClick } from "../utils/soundManager";
+
 
 //customizable content
 function Header() {
@@ -178,7 +178,6 @@ function Header() {
                     type="button"
                     className="theme-button"
                     onClick={() => {
-                      playClick();
                       toggleSound();
                     }}
                   >
@@ -284,7 +283,7 @@ function Header() {
 
             <div className="customization-group">
               <p>Sound</p>
-              <button type="button" className="theme-button" onClick={() => {playClick(); toggleSound();}}>
+              <button type="button" className="theme-button" onClick={() => {toggleSound();}}>
                 {soundEnabled ? "Sound On" : "Sound Off"}
               </button>
             </div>

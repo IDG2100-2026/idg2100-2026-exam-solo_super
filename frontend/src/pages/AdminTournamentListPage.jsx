@@ -13,6 +13,7 @@ function AdminTournamentListPage() {
     });
 
     const data = await response.json();
+    console.log("Start tournament response:", data);
 
     if (!response.ok) {
       setError(data.message || "Failed to load tournaments.");
@@ -54,6 +55,34 @@ function AdminTournamentListPage() {
       )
     );
   };
+
+  const handleStartTournament = async (tournament) => {
+    const confirmed = window.confirm(`Start "${tournament.title}"?`);
+    if (!confirmed) return;
+
+    const response = await fetch(
+        `http://localhost:5008/api/admin/tournaments/${tournament._id}/start`,
+        {
+        method: "PATCH",
+        credentials: "include",
+        }
+    );
+
+    const data = await response.json();
+
+    console.log("START TOURNAMENT RESPONSE:", data);
+
+    if (!response.ok) {
+        setError(data.message || "Failed to start tournament.");
+        return;
+    }
+
+    setTournaments((prev) =>
+        prev.map((item) =>
+        item._id === tournament._id ? data.data : item
+        )
+    );
+    };
 
   const handleDeleteTournament = async (tournament) => {
     const confirmed = window.confirm(
@@ -190,24 +219,27 @@ function AdminTournamentListPage() {
               </td>
 
               <td>
-                <Link to={`/admin/tournaments/create?edit=${tournament._id}`}>
-                  Edit
-                </Link>
-
+                <Link to={`/admin/tournaments/create?edit=${tournament._id}`}>Edit</Link>
                 <button
                   type="button"
                   onClick={() => handleCancelTournament(tournament)}
-                  disabled={tournament.status === "cancelled"}
-                >
-                  Cancel
+                  disabled={tournament.status === "cancelled"}>Cancel
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleDeleteTournament(tournament)}
-                >
+                  onClick={() => handleDeleteTournament(tournament)}>
                   Delete
                 </button>
+
+                {tournament.status === "open" && (
+                    <button
+                    type="button"
+                    onClick={() => handleStartTournament(tournament)}
+                    >
+                    Start
+                    </button>
+                )}
               </td>
             </tr>
           ))}

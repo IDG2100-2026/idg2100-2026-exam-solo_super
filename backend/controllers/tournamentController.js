@@ -1,5 +1,6 @@
 const Tournament = require("../models/tournamentSchema");
 const User = require("../models/userSchema");
+const Match = require("../models/matchSchema");
 
 const buildCategoryKey = (bestOf, straightsAllowed, roundTimeSeconds) => {
   return `bestOf${bestOf}_straights${straightsAllowed ? "On" : "Off"}_${roundTimeSeconds}s`;
@@ -116,6 +117,100 @@ const createTournament = async (req, res) => {
       message: "Failed to create tournament.",
       error: error.message
     });
+  }
+};
+
+
+  const generateRoundRobinRounds = (participants) => {
+    const players = participants.map((participant) => participant.user);
+
+    if (players.length % 2 !== 0) {
+      players.push(null); // bye
+    }
+
+    const rounds = [];
+    const totalRounds = players.length - 1;
+    const half = players.length / 2;
+
+    let rotation = [...players];
+
+    for (let roundNumber = 1; roundNumber <= totalRounds; roundNumber++) {
+      const matches = [];
+
+      for (let i = 0; i < half; i++) {
+        const playerOne = rotation[i];
+        const playerTwo = rotation[rotation.length - 1 - i];
+
+        if (!playerOne || !playerTwo) {
+          matches.push({
+            playerOne: playerOne || playerTwo,
+            playerTwo: null,
+            winner: playerOne || playerTwo,
+            status: "bye",
+          });
+        } else {
+          matches.push({
+            playerOne,
+            playerTwo,
+            winner: null,
+            status: "scheduled",
+          });
+        }
+      }
+
+      rounds.push({
+        roundNumber,
+        matches,
+      });
+
+      const fixed = rotation[0];
+      const rest = rotation.slice(1);
+      rest.unshift(rest.pop());
+      rotation = [fixed, ...rest];
+    }
+
+    return rounds;
+  };
+
+ const createMatchesForCurrentRound = async (tournament) => {
+  const currentRound = tournament.rounds.find(
+    (round) => round.roundNumber === tournament.currentRound
+  );
+
+  if (!currentRound) return;
+
+  for (const roundMatch of currentRound.matches) {
+    if (roundMatch.status === "bye") continue;
+    if (roundMatch.matchId) continue;
+    if (!roundMatch.playerOne || !roundMatch.playerTwo) continue;
+
+    const match = await Match.create({
+      players: [
+        {
+          user: roundMatch.playerOne,
+          usernameSnapshot: "",
+        },
+        {
+          user: roundMatch.playerTwo,
+          usernameSnapshot: "",
+        },
+      ],
+      anonymousPlayers: 0,
+      isAnonymousMatch: false,
+      bestOf: tournament.bestOf,
+      straightsAllowed: tournament.straightsAllowed,
+      roundTimeSeconds: tournament.roundTimeSeconds,
+      categoryKey:
+        tournament.categoryKey ||
+        `bestOf${tournament.bestOf}_straights${
+          tournament.straightsAllowed ? "On" : "Off"
+        }_${tournament.roundTimeSeconds}s`,
+      status: "ongoing",
+      startedAt: new Date(),
+    });
+
+    roundMatch.matchId = match._id;
+    roundMatch.status = "ongoing";
   }
 };
 
@@ -247,9 +342,11 @@ const getTournamentById = async (req, res) => {
       .populate("createdBy", "username")
       .populate("participants.user", "username eloRating")
       .populate("winner", "username eloRating")
+      .populate("standings.user", "username eloRating")
       .populate("rounds.matches.playerOne", "username eloRating")
       .populate("rounds.matches.playerTwo", "username eloRating")
-      .populate("rounds.matches.winner", "username eloRating");
+      .populate("rounds.matches.winner", "username eloRating")
+      .populate("rounds.matches.matchId");
 
     if (!tournament) {
       return res.status(404).json({
@@ -365,32 +462,24 @@ const startTournament = async (req, res) => {
       });
     }
 
-    const shuffledParticipants = [...tournament.participants].sort(
-      () => Math.random() - 0.5
-    );
+  const generatedRounds = generateRoundRobinRounds(tournament.participants);
 
-    const firstRoundMatches = [];
+  tournament.rounds = generatedRounds;
 
-    for (let i = 0; i < shuffledParticipants.length; i += 2) {
-      const playerOne = shuffledParticipants[i];
-      const playerTwo = shuffledParticipants[i + 1] || null;
+  tournament.currentRound = 1;
+  tournament.totalRounds = generatedRounds.length;
 
-      firstRoundMatches.push({
-        playerOne: playerOne.user,
-        playerTwo: playerTwo ? playerTwo.user : null,
-        winner: playerTwo ? null : playerOne.user,
-        status: playerTwo ? "scheduled" : "bye"
-      });
-    }
-
-    tournament.rounds = [
-      {
-        roundNumber: 1,
-        matches: firstRoundMatches
-      }
-    ];
+  tournament.standings = tournament.participants.map(
+    (participant) => ({
+      user: participant.user,
+      points: 0,
+    })
+  );
+    
 
     tournament.status = "ongoing";
+
+    await createMatchesForCurrentRound(tournament);
 
     await tournament.save();
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 function TournamentPage() {
   const { id } = useParams();
@@ -82,6 +82,14 @@ function TournamentPage() {
     fetchTournament();
     fetchCurrentUser();
     fetchComments();
+  }, [id]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchTournament();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [id]);
 
   const handleJoinTournament = async () => {
@@ -308,6 +316,12 @@ function TournamentPage() {
             <button onClick={handleJoinTournament} disabled={joining}>
               {joining ? "Joining..." : "Join Tournament"}
             </button>
+          )}
+
+          {tournament?.status === "ongoing" && (
+            <Link to={`/tournaments/${id}/play`} className="tournament-link-button">
+              Enter Tournament Room
+            </Link>
           )}
           <p><strong>Countdown:</strong> {timeLeft || "Not available"}</p>
         </section>

@@ -8,6 +8,7 @@ const {
   createTournament,
   getAllTournaments,
   deleteTournament,
+  startTournament,
   cancelTournament,
 } = require("../controllers/tournamentController");
 
@@ -52,6 +53,8 @@ router.get("/tournaments", verifyToken, isAdmin, getAllTournaments);
 router.patch("/tournaments/:id/cancel", verifyToken, isAdmin,cancelTournament);
 
 router.delete("/tournaments/:id", verifyToken, isAdmin, deleteTournament);
+
+router.patch("/tournaments/:id/start", verifyToken, isAdmin, startTournament);
 
 
 module.exports = router;

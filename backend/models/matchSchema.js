@@ -29,7 +29,7 @@ const matchSchema = new mongoose.Schema(
     isAnonymousMatch: {type: Boolean, default: false},
     bestOf: {type: Number, required: true, enum: [3, 5, 7]},
     straightsAllowed: {type: Boolean, required: true, default: true},
-    roundTimeSeconds: {type: Number, required: true, enum: [3, 10, 30]},
+    roundTimeSeconds: {type: Number, required: true, enum: [3, 5, 10, 15, 30]},
     categoryKey: {type: String,required: true},
     status: {type: String,enum: ["waiting", "ongoing", "finished", "cancelled"], default: "waiting"},
     winnerType: {type: String, enum: ["registered", "anonymous", null], default: null},

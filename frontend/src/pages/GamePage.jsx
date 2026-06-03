@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
-import { playSound } from "../utils/soundManager";
+import {playGameStart, playGameEnd, playRoundEnd, playRoll, playHold, } from "../utils/soundManager";
 
 // Imports the custom web components from oblig 1
 import "../webComponents/dice-poker-board";
@@ -250,6 +250,18 @@ function GamePage() {
 
     boardElement.addEventListener("dp:match-decided", handleMatchDecided);
     boardElement.addEventListener("dp:die-held-changed", handleLiveBoardEvent);
+
+    const handleRoundStartSound = () => playGameStart();
+    const handleRollSound = () => playRoll();
+    const handleHoldSound = () => playHold();
+    const handleRoundEndSound = () => playRoundEnd();
+    const handleGameEndSound = () => playGameEnd();
+
+    boardElement.addEventListener("dp:round-start", handleRoundStartSound);
+    boardElement.addEventListener("dp:roll-executed", handleRollSound);
+    boardElement.addEventListener("dp:die-held-changed", handleHoldSound);
+    boardElement.addEventListener("dp:round-decided", handleRoundEndSound);
+    boardElement.addEventListener("dp:match-decided", handleGameEndSound);
     
 
     // Cleanup: removes listener to avoid duplicate event handlers
@@ -260,6 +272,11 @@ function GamePage() {
       boardElement.removeEventListener("dp:round-decided", handleLiveBoardEvent);
       boardElement.removeEventListener("dp:match-decided", handleMatchDecided);
       boardElement.removeEventListener("dp:die-held-changed", handleLiveBoardEvent);
+      boardElement.removeEventListener("dp:round-start", handleRoundStartSound);
+      boardElement.removeEventListener("dp:roll-executed", handleRollSound);
+      boardElement.removeEventListener("dp:die-held-changed", handleHoldSound);
+      boardElement.removeEventListener("dp:round-decided", handleRoundEndSound);
+      boardElement.removeEventListener("dp:match-decided", handleGameEndSound);
     };
   }, [match, id]);
 
