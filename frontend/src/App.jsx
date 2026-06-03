@@ -68,8 +68,6 @@ function App() {
         <Route path="/admin/tournaments/create" element={<AdminCreateTournamentPage />} />
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
-        <Route path="/admin/tournaments" element={<AdminTournamentListPage />} />
-        
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
